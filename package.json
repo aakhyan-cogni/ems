@@ -1,0 +1,12 @@
+{
+  "name": "ems",
+  "version": "1.0.0",
+  "description": "Event Management System",
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
