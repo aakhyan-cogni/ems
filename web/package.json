@@ -4,26 +4,20 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "react-router dev",
-		"build": "react-router build",
-		"start": "react-router-serve ./build/server/index.js",
-		"typecheck": "react-router typegen && tsc",
+		"dev": "vite",
+		"build": "tsc -b && vite build",
 		"lint": "eslint .",
 		"preview": "vite preview"
 	},
 	"dependencies": {
 		"@popperjs/core": "^2.11.8",
-		"@react-router/node": "^7.13.1",
-		"@react-router/serve": "^7.13.1",
 		"bootstrap": "^5.3.8",
-		"isbot": "^5",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
 		"react-router": "^7.13.1"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.1",
-		"@react-router/dev": "^7.13.1",
 		"@types/bootstrap": "^5.2.10",
 		"@types/node": "^24.10.1",
 		"@types/react": "^19.2.7",
