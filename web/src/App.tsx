@@ -51,16 +51,15 @@ function App() {
 							</p>
 							<div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
 								<motion.button
-									whileHover={{ scale: 1.05 }}
 									whileTap={{ scale: 0.95 }}
 									className="btn btn-primary btn-lg px-5 rounded-pill shadow"
 								>
 									Explore Events
 								</motion.button>
 								<motion.button
-									whileHover={{ scale: 1.05 }}
 									whileTap={{ scale: 0.95 }}
-									className="btn btn-outline-primary btn-lg px-5 rounded-pill bg-body shadow-sm"
+									style={{ transition: "color 0s" }}
+									className="btn btn-outline-primary btn-lg px-5 rounded-pill shadow-sm"
 								>
 									Create Event
 								</motion.button>
