@@ -4,8 +4,8 @@ import ThemeSwitch from "./ThemeSwitch";
 export default function Navbar() {
 	return (
 		<nav className="navbar navbar-expand-lg border-bottom sticky-top bg-body-tertiary">
-			<div className="container">
-				<Link className="navbar-brand fw-bold text-primary" to="/">
+			<div className="container gap-md-5">
+				<Link className="navbar-brand fw-bold text-primary m-0 mx-md-5" to="/">
 					EMS
 				</Link>
 
@@ -22,7 +22,7 @@ export default function Navbar() {
 				</button>
 
 				<div className="collapse navbar-collapse" id="emsNav">
-					<ul className="navbar-nav me-auto mb-2 mb-lg-0">
+					<ul className="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3 text-center">
 						<li className="nav-item">
 							<NavLink className="nav-link" to="/">
 								Home
@@ -35,9 +35,9 @@ export default function Navbar() {
 						</li>
 					</ul>
 
-					<div className="d-flex flex-column flex-lg-row align-items-lg-center gap-3 mt-3 mt-lg-0">
+					<div className="d-flex flex-column flex-lg-row align-items-center gap-3 mt-3 mt-lg-0">
 						<ThemeSwitch />
-						<Link to="/login" className="btn btn-primary w-100 w-lg-auto">
+						<Link to="/login" className="btn btn-primary rounded-pill px-4 w-100 w-lg-auto shadow-sm">
 							Login
 						</Link>
 					</div>
