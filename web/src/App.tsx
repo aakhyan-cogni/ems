@@ -51,16 +51,15 @@ function App() {
 							</p>
 							<div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
 								<motion.button
-									whileHover={{ scale: 1.05 }}
 									whileTap={{ scale: 0.95 }}
 									className="btn btn-primary btn-lg px-5 rounded-pill shadow"
 								>
 									Explore Events
 								</motion.button>
 								<motion.button
-									whileHover={{ scale: 1.05 }}
 									whileTap={{ scale: 0.95 }}
-									className="btn btn-outline-primary btn-lg px-5 rounded-pill bg-body shadow-sm"
+									style={{ transition: "color 0s" }}
+									className="btn btn-outline-primary btn-lg px-5 rounded-pill shadow-sm"
 								>
 									Create Event
 								</motion.button>
@@ -93,13 +92,39 @@ function App() {
 				</div>
 
 				<section className="container py-5">
-					<div className="d-flex justify-content-between align-items-end mb-5">
+					<div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3">
 						<div>
 							<h2 className="fw-bold border-start border-primary border-4 ps-3">Upcoming Events</h2>
 							<p className="text-muted mb-0">Don't miss out on these top-rated experiences.</p>
 						</div>
-						<button className="btn btn-link text-decoration-none fw-bold">View All →</button>
+						<button className="btn btn-link text-decoration-none fw-bold p-0 text-start">View All →</button>
 					</div>
+
+					<motion.div
+						initial={{ opacity: 0, y: 10 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true }}
+						className="mb-5"
+					>
+						<div className="row">
+							<div className="col-lg-8">
+								<div className="input-group input-group-lg shadow-sm rounded-4 overflow-hidden border">
+									<span className="input-group-text bg-body border-0 ps-4">
+										<i className="bi bi-search text-primary"></i> 🔍
+									</span>
+									<input
+										type="text"
+										className="form-control bg-body border-0 py-2 shadow-none"
+										placeholder="Search for events, workshops, or conferences..."
+										aria-label="Search events"
+									/>
+									<button className="btn btn-primary px-4 fw-semibold" type="button">
+										Search
+									</button>
+								</div>
+							</div>
+						</div>
+					</motion.div>
 
 					<motion.div
 						variants={staggerContainer}
