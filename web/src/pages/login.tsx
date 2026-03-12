@@ -20,7 +20,7 @@ export default function Login() {
         <div className="min-vh-100 bg-body position-relative overflow-hidden d-flex align-items-center justify-content-center">
             {/* Background Glows */}
             <div
-                className="position-absolute top-0 start-0 translate-middle bg-primary opacity-10 rounded-circle"
+                className="position-absolute top-0 start-0 translate-middle bg-primary opacity-10 rounded-circle "
                 style={{ width: "600px", height: "600px", filter: "blur(100px)", zIndex: 0 }}
             ></div>
             <div
@@ -36,7 +36,7 @@ export default function Login() {
                 className="container position-relative" 
                 style={{ zIndex: 1, maxWidth: "450px" }}
             >
-                <div className="card shadow-lg border-0 rounded-4 bg-body-tertiary backdrop-blur p-4 p-md-5">
+                <div className="card shadow-lg border-0 rounded-4 mt-4 bg-body-tertiary backdrop-blur p-4 p-md-5">
                     <div className="text-center mb-4">
                         <motion.span
                             initial={{ scale: 0.8, opacity: 0 }}
@@ -66,7 +66,7 @@ export default function Login() {
                                     <input 
                                         type="text" 
                                         className="form-control rounded-pill border-primary border-opacity-25" 
-                                        placeholder="John Doe"
+                                        placeholder="Desired User Name"
                                         required={!login}
                                     />
                                 </motion.div>
@@ -93,6 +93,14 @@ export default function Login() {
                             />
                         </div>
 
+                        {/* <div className="d-flex align-items-center my-4">
+                            <hr className="flex-grow-1" />
+                            <span className="mx-3 text-muted small fw-bold">OR</span>
+                            <hr className="flex-grow-1" />
+                        </div> */}
+
+                        
+
                         <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -100,6 +108,21 @@ export default function Login() {
                             className="btn btn-primary w-100 btn-lg rounded-pill shadow mb-3"
                         >
                             {login ? "Sign In" : "Register Now"}
+                        </motion.button>
+
+                        <motion.button
+                            type="button"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="btn btn-outline-secondary w-100 btn-lg rounded-pill shadow-sm d-flex align-items-center justify-content-center bg-white border-opacity-25"
+                            onClick={() => console.log("Google Login Triggered")}
+                        >
+                            <img 
+                                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+                                alt="Google logo" 
+                                style={{ width: '20px', marginRight: '10px' }} 
+                            />
+                            <span className="text-dark small fw-bold">Continue with Google</span>
                         </motion.button>
                     </form>
 
@@ -114,6 +137,7 @@ export default function Login() {
                             {login ? "Create Account →" : "← Back to Login"}
                         </button>
                     </div>
+                    
                 </div>
 
                 {/* Footer attribution matching App.tsx */}
