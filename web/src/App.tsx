@@ -92,7 +92,6 @@ function App() {
 				</div>
 
 				<section className="container py-5">
-					{/* Header Section */}
 					<div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3">
 						<div>
 							<h2 className="fw-bold border-start border-primary border-4 ps-3">Upcoming Events</h2>
@@ -101,7 +100,6 @@ function App() {
 						<button className="btn btn-link text-decoration-none fw-bold p-0 text-start">View All →</button>
 					</div>
 
-					{/* Modern Search Bar */}
 					<motion.div
 						initial={{ opacity: 0, y: 10 }}
 						whileInView={{ opacity: 1, y: 0 }}
@@ -128,7 +126,6 @@ function App() {
 						</div>
 					</motion.div>
 
-					{/* Event Grid */}
 					<motion.div
 						variants={staggerContainer}
 						initial="hidden"
