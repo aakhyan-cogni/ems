@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar";
 import "bootstrap";
 import Footer from "./components/Footer";
 import Antigravity from "./components/special/Antigravity";
+import Dashboard from "./pages/Dashboard";
 
 createRoot(document.getElementById("root")!).render(
 	<BrowserRouter>
@@ -35,6 +36,7 @@ createRoot(document.getElementById("root")!).render(
 				<Route path="/" element={<App />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/events" element={<GlobalEventPage />} />
+				<Route path="/dashboard" element={<Dashboard />} />
 			</Routes>
 			<Footer />
 		</main>
