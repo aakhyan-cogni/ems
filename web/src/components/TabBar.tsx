@@ -19,15 +19,15 @@ export default function ProfileLayout() {
 
   return (
     <div className="container-fluid">
-      <div className="row min-vh-100">
+      <div className="row min-lg-vh-100">
         <aside className={`col-12 col-md-3 col-lg-2 border-end bg-body-tertiary px-0 `}>
-          <div className={`d-flex flex-column h-100`}>
+          <div className={`d-flex flex-column h-lg-100`}>
             <div className="p-3 border-bottom">
               <h6 className="mb-0">My Account</h6>
               <small className="text-muted">Navigation</small>
             </div>
 
-            <nav className="nav nav-pills flex-column py-2">
+            <nav className="nav nav-pills flex-wrap flex-lg-column py-2">
               <div className="nav-item">
                 {/* <NavButton id="dashboard" label="Dashboard" icon={"🗓️"}/> */}
                 <button
