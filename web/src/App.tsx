@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-
+import { useNavigate } from "react-router";
 const fadeInUp = {
 	hidden: { opacity: 0, y: 30 },
 	visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
@@ -14,6 +14,7 @@ const staggerContainer = {
 };
 
 function App() {
+	const navigate = useNavigate();
 	return (
 		<div className="min-vh-100 bg-body position-relative overflow-hidden">
 			<div
@@ -52,6 +53,7 @@ function App() {
 							<div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
 								<motion.button
 									whileTap={{ scale: 0.95 }}
+									onClick={() => navigate("/events")}
 									className="btn btn-primary btn-lg px-5 rounded-pill shadow"
 								>
 									Explore Events
