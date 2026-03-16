@@ -10,6 +10,8 @@ import "bootstrap";
 import Footer from "./components/Footer";
 import Antigravity from "./components/special/Antigravity";
 import EventCreationForm from "./components/EventCreationForm.tsx";
+import { Toaster } from "react-hot-toast";
+
 
 createRoot(document.getElementById("root")!).render(
 	<BrowserRouter>
@@ -39,6 +41,7 @@ createRoot(document.getElementById("root")!).render(
 				<Route path="/create" element={<EventCreationForm />}></Route>
 			</Routes>
 			<Footer />
+			<Toaster position="bottom-center"/>
 		</main>
 	</BrowserRouter>,
 );
