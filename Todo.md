@@ -3,6 +3,7 @@
 ## Done
 
 - [x] Landing Page (Aakhyan)
+- [x] Extract Footer into its own Component (Aakhyan)
 - [x] Login/Register Page (Deepu)
 
 ## Ongoing
@@ -13,5 +14,3 @@
 - [ ] Dummy data from backend (Aakhyan)
 
 ## Unassigned
-
-- [ ] Extract Footer into its own Component
