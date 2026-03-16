@@ -20,7 +20,7 @@ export const getAllEvents = async (): Promise<Event[]> => {
 		"Austin, TX",
 		"Paris, France",
 	];
-	const currencies = ["USD", "EUR", "GBP", "JPY"];
+	const currencies = ["USD", "EUR", "GBP", "JPY", "INR"];
 
 	const baseEvents: Partial<Event>[] = [
 		{ title: "Next.js Conf 2026", category: "Conferences", tags: "Nextjs, React, Vercel" },
@@ -60,6 +60,12 @@ export const getAllEvents = async (): Promise<Event[]> => {
 		const price = Math.floor(Math.random() * 200);
 		const attendees = Math.floor(Math.random() * 500) + 10;
 
+		const dateOffset = Math.floor(Math.random() * 22) - 7; 
+        const eventDateTime = new Date();
+        eventDateTime.setDate(eventDateTime.getDate() + dateOffset);
+        // Set a random hour for realism
+        eventDateTime.setHours(Math.floor(Math.random() * 12) + 9, 0, 0, 0);
+
 		return {
 			id,
 			title: event.title!,
@@ -73,6 +79,7 @@ export const getAllEvents = async (): Promise<Event[]> => {
 			venue: price > 100 ? "Grand Plaza Hotel" : "Community Center",
 			tags: event.tags,
 			attendees: attendees,
+			eventDateTime,
 			avgRating: parseFloat((Math.random() * (5 - 3) + 3).toFixed(1)),
 			totalRatings: Math.floor(Math.random() * 100),
 			reviews: [

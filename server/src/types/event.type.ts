@@ -10,6 +10,7 @@ export interface Event {
 	image: string;
 	description: string;
 	longDescription: string;
+	eventDateTime: Date;
 	venue?: string;
 	tags?: string;
 	attendees?: number;
