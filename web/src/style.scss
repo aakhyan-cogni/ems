@@ -1,5 +1,9 @@
 @import "bootstrap/scss/bootstrap";
 
+// * {
+// 	outline: 1px solid red;
+// }
+
 .backdrop-blur {
 	backdrop-filter: blur(10px);
 	background-color: rgba(var(--bs-body-bg-rgb), 0.8) !important;
