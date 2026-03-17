@@ -17,9 +17,6 @@ export default function Login() {
         console.log("Form submitted");
     };
 
-    function handleLogin(){
-
-    }
     return (
         <div className="min-vh-100 bg-body position-relative overflow-hidden d-flex align-items-center justify-content-center">
             {/* Background Glows */}
@@ -102,7 +99,7 @@ export default function Login() {
                             whileTap={{ scale: 0.98 }}
                             type="submit"
                             className="btn btn-primary w-100 btn-lg rounded-pill shadow mb-3"
-                            onClick={handleLogin}
+                            onClick={() => toast("Login Button Clicked")}
                         >
                             {login ? "Sign In" : "Register Now"}
                         </motion.button>
