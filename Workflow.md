@@ -88,3 +88,7 @@
     3. Ai asistant
     4. Twilio
     5. Notifications / Reminders
+    6. Duplicate Event (Relaunch)
+    7. Subscription basis
+    8. Pre payment / Post Payment
+    9. Support and Service
