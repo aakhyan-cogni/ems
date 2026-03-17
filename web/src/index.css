@@ -74,3 +74,27 @@ button:focus-visible {
     min-height: 100vh;
   }
 }
+
+.range::-webkit-slider-runnable-track {
+    background: linear-gradient(to top, #0000ff , #00ffff );
+    border-radius: 4px;
+    height: 100%;
+}
+
+.range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    background: #000;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    height: 20px;
+    width: 20px;
+    cursor: pointer;
+    margin-top: -8px; /* Align thumb */
+}
+
+
+.btn:active, .btn:focus{
+  outline: none;
+  border: none;
+}
+
