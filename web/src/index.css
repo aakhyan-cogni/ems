@@ -73,6 +73,9 @@ button:focus-visible {
   .min-lg-vh-100 {
     min-height: 100vh;
   }
+  .d-lg-flex {
+    display: flex;
+  }
 }
 
 .range::-webkit-slider-runnable-track {
