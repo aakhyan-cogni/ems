@@ -33,11 +33,6 @@ export default function Navbar() {
 								Events
 							</NavLink>
 						</li>
-						<li className="nav-item">
-							<NavLink className="nav-link" to="/dashboard">
-								Dashboard
-							</NavLink>
-						</li>
 					</ul>
 
 					<div className="d-flex flex-column flex-lg-row align-items-center gap-3 mt-3 mt-lg-0">
