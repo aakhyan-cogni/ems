@@ -1,11 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
-import Female_1 from "../../assets/Profile_Avatars/Female_1.jpeg";
-import Female_2 from "../../assets/Profile_Avatars/Female_2.jpeg";
-import Female_3 from "../../assets/Profile_Avatars/Female_3.jpeg";
-import Male_1 from "../../assets/Profile_Avatars/Male_1.jpeg";
-import Male_2 from "../../assets/Profile_Avatars/Male_2.jpeg";
-import Male_3 from "../../assets/Profile_Avatars/Male_3.jpg";
+import Female_1 from "../../../assets/Profile_Avatars/Female_1.jpeg";
+import Female_2 from "../../../assets/Profile_Avatars/Female_2.jpeg";
+import Female_3 from "../../../assets/Profile_Avatars/Female_3.jpeg";
+import Male_1 from "../../../assets/Profile_Avatars/Male_1.jpeg";
+import Male_2 from "../../../assets/Profile_Avatars/Male_2.jpeg";
+import Male_3 from "../../../assets/Profile_Avatars/Male_3.jpg";
 
 const BasicProfileInfo = () => {
 
