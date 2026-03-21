@@ -3,13 +3,18 @@ import SplitText from "./components/special/SplitText";
 import { motion } from "motion/react";
 import Lottie from "lottie-react";
 import calendar from "./assets/calendar.json";
+import { useNavigate } from "react-router";
 
 export default function App() {
-import { useNavigate } from "react-router";
+
+const navigate = useNavigate();
+
 const fadeInUp = {
 	hidden: { opacity: 0, y: 30 },
 	visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
+
+
 
 const staggerContainer = {
 	hidden: { opacity: 0 },
@@ -17,10 +22,8 @@ const staggerContainer = {
 		opacity: 1,
 		transition: { staggerChildren: 0.2 },
 	},
-};
+}
 
-function App() {
-	const navigate = useNavigate();
 	return (
 		<div className="container position-relative w-100 h-100 d-flex flex-column align-items-center justify-content-center">
 			<div className="container d-flex flex-column flex-md-row z-1 p-2" style={{ backdropFilter: "blur(2px)" }}>
@@ -36,11 +39,11 @@ function App() {
 								<GradientText animationSpeed={4}>Event</GradientText>
 							</h1>
 							<Lottie animationData={calendar} className="w-25" />
-							<p className="lead text-body-secondary mb-4 mx-auto" style={{ maxWidth: "700px" }}>
+							{/* <p className="lead text-body-secondary mb-4 mx-auto" style={{ maxWidth: "700px" }}>
 								The all-in-one platform for organizers and attendees. Create, discover, and manage
 								events with seamless payment and real-time analytics.
-							</p>
-							<div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
+							</p> */}
+							{/* <div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
 								<motion.button
 									whileTap={{ scale: 0.95 }}
 									onClick={() => navigate("/events")}
@@ -55,7 +58,7 @@ function App() {
 								>
 									Create Event
 								</motion.button>
-							</div>
+							</div> */}
 						</div>
 						<h1 className="display-3 fw-bold align-self-start">
 							<GradientText animationSpeed={4}>Management</GradientText>

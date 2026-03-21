@@ -40,11 +40,11 @@ createRoot(document.getElementById("root")!).render(
 			</Routes>
 			<Footer />
 		</main>
-		<Navbar />
+		{/* <Navbar />
 		<Routes>
 			<Route path="/" element={<App />} />
 			<Route path="/login" element={<Login />} />
 			<Route path="/events" element={<GlobalEventPage/>} />
-		</Routes>
+		</Routes> */}
 	</BrowserRouter>,
 );
