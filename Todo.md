@@ -7,10 +7,11 @@
 - [x] Login/Register Page (Deepu)
 - [x] Events Page (Deepika)
 - [x] Dummy data from backend (Aakhyan)
+- [x] Event Creation Flow (Manikaanth)
 
 ## Ongoing
 
 - [ ] Dashboard Page (Sushant)
-- [ ] Event Creation Flow (Manikaant)
+- [ ] Support Page (Manikaanth)
 
 ## Unassigned
