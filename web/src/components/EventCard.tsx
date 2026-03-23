@@ -27,7 +27,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
       } else if (diff < 86400000) { 
         const hours = Math.floor(diff / 3600000);
         const mins = Math.floor((diff % 3600000) / 60000);
-        setTimeLeft(`${hours}h ${mins}m left`);
+        setTimeLeft(`${hours}h ${mins}m`);
       }
     }, 60000);
     return () => clearInterval(timer);

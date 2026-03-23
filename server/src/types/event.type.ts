@@ -11,6 +11,8 @@ export interface Event {
 	description: string;
 	longDescription: string;
 	eventDateTime: Date;
+	hostId: string;
+	bookedUserIds: string[];
 	venue?: string;
 	tags?: string;
 	attendees?: number;

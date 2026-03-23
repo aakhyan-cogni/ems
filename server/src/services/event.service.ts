@@ -79,7 +79,9 @@ export const getAllEvents = async (): Promise<Event[]> => {
 			venue: price > 100 ? "Grand Plaza Hotel" : "Community Center",
 			tags: event.tags,
 			attendees: attendees,
-			eventDateTime,
+			eventDateTime: eventDateTime,
+			hostId: Math.random() > 0.7 ? "u-1" : `u-host-${id}`, 
+            bookedUserIds: Math.random() > 0.5 ? ["u-1", "u-2"] : ["u-3"],
 			avgRating: parseFloat((Math.random() * (5 - 3) + 3).toFixed(1)),
 			totalRatings: Math.floor(Math.random() * 100),
 			reviews: [
