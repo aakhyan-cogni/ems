@@ -310,7 +310,8 @@ function PaymentContent() {
 
           <button
             onClick={handleSaveNext}
-            className="float-end bg-info w-25 text-dark border-none form-control rounded-2"
+			disabled={isLast}
+            className={` ${(isLast)?"bg-secondary":"bg-info"} float-end  w-25 text-dark border-none form-control rounded-2`}
           >
             {"Next"}
           </button>

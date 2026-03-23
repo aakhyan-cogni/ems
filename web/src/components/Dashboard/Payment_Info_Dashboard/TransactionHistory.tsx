@@ -1,6 +1,9 @@
 import React from "react";
 
 const TransactionHistory = () => {
+
+	const theme=localStorage.getItem("theme");
+
 	return (
 		<div className="container-fluid h-100 d-flex flex-column personal-wrapper">
 			{/* Header */}
@@ -15,7 +18,7 @@ const TransactionHistory = () => {
 			{/* Table */}
 			<div className="mt-2" style={{ height: "28rem"  }}>
 				<div className="w-100 h-100 overflow-auto">
-					<table className="w-100 table table-striped table-dark table-hover text-center">
+					<table className={`w-100 table table-striped table-hover text-center`}>
 						<thead className="table-info">
 							<tr>
 								<th>Date</th>

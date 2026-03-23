@@ -135,7 +135,7 @@ export function Upis() {
 			{upis.map((u) => (
 				<div key={u.id} className="col-12 col-lg-6 d-flex">
 					<div
-						className="w-100 border rounded-3 p-3 shadow-sm bg-dark"
+						className="w-100 border rounded-3 p-3 shadow-sm "
 						style={{
 							borderColor: "#dee2e6",
 							minHeight: 120,
