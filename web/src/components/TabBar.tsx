@@ -3,6 +3,9 @@ import ThemeSwitch from "./ThemeSwitch";
 import BasicProfileInfo from "./Dashboard/Personal_Info_Dashboard/BasicProfileInfo";
 import Address from "./Dashboard/Personal_Info_Dashboard/Address";
 import OrganizationalInfo from "./Dashboard/Personal_Info_Dashboard/OrganizationalInfo";
+import SavedPaymentMethods from "./Dashboard/Payment_Info_Dashboard/SavedPaymentMethods";
+import TransactionHistory from "./Dashboard/Payment_Info_Dashboard/TransactionHistory";
+import SubscriptionPlans from "./Dashboard/Payment_Info_Dashboard/SubscriptionPlans";
 
 
 export default function ProfileLayout() {
@@ -135,29 +138,6 @@ export default function ProfileLayout() {
 								}}
 							>
 								as
-							</div>
-							<div className="nav-item d-flex">
-								{/* <NavButton id="settings" label="Settings" icon={"⚙️"}/> */}
-								<button
-									className={`btn m-1 ms-2 text-start px-3 py-2 border-none`}
-									onClick={() => setActive("settings")}
-									onMouseOver={() => setHover("settings")}
-									onMouseOut={() => setHover("")}
-								>
-									<span className="me-2">{"💰"}</span>
-									{"Settings"}
-								</button>
-								<div
-									className={`rouded-3 rounded-top rounded-bottom ${active === "settings" ? "bg-primary" : ""} my-2`}
-									style={{
-										marginLeft: "auto",
-										width: "5px",
-										backgroundColor: "transparent",
-										color: "transparent",
-									}}
-								>
-									as
-								</div>
 							</div>
 							<div
 								className={`d-none d-lg-block rounded-lg ${hover === "settings" ? "bg-primary" : ""} overflow-hidden ms-3`}
@@ -295,7 +275,49 @@ function DashboardContent() {
 }
 
 function PaymentContent() {
-	return <>Payment Details</>;
+	const contents = [<SavedPaymentMethods/>, <TransactionHistory/>, <SubscriptionPlans/>];
+
+  const [step, setStep] = useState(0);
+
+  const content = contents[step];
+
+  function handleSaveNext() {
+    setStep((prev) => (prev + 1) % contents.length);
+  }
+
+  function handlePrevious() {
+    setStep((prev) => Math.max(prev - 1, 0));
+  }
+
+  const isFirst = step === 0;
+  const isLast = step === contents.length - 1;
+
+  return (
+    <div className="container-fluid h-100 d-flex flex-column personal-wrapper">
+      {content}
+
+      <div className="row">
+        <div className="col-12 d-flex align-items-between justify-content-between">
+          <button
+            onClick={handlePrevious}
+            disabled={isFirst}
+            className={`float-start w-25 text-dark border-none form-control rounded-2 ${
+              isFirst ? "bg-secondary" : "bg-info"
+            }`}
+          >
+            Previous
+          </button>
+
+          <button
+            onClick={handleSaveNext}
+            className="float-end bg-info w-25 text-dark border-none form-control rounded-2"
+          >
+            {"Next"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function SettingsContent() {
