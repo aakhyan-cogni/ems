@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import toast from "react-hot-toast";
 
 const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
@@ -91,21 +92,14 @@ export default function Login() {
                                 placeholder="••••••••"
                                 required 
                             />
-                        </div>
-
-                        {/* <div className="d-flex align-items-center my-4">
-                            <hr className="flex-grow-1" />
-                            <span className="mx-3 text-muted small fw-bold">OR</span>
-                            <hr className="flex-grow-1" />
-                        </div> */}
-
-                        
+                        </div>                  
 
                         <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             type="submit"
                             className="btn btn-primary w-100 btn-lg rounded-pill shadow mb-3"
+                            onClick={() => toast("Login Button Clicked")}
                         >
                             {login ? "Sign In" : "Register Now"}
                         </motion.button>
@@ -115,7 +109,7 @@ export default function Login() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             className="btn btn-outline-secondary w-100 btn-lg rounded-pill shadow-sm d-flex align-items-center justify-content-center bg-white border-opacity-25"
-                            onClick={() => console.log("Google Login Triggered")}
+                            onClick={()=>toast("Google Login Triggered")}
                         >
                             <img 
                                 src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
