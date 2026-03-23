@@ -2,10 +2,12 @@ export function PricingCard(props: PricingCardProps) {
 	let { description, features, price, title, active, popular } = props;
 
 	return (
-		<div className={`card h-100 shadow-sm ${active ? "border-primary border-2" : ""}`}>
-			{popular && <div className="card-header bg-primary text-white text-center py-1">Most Popular</div>}
+		<div className={`card h-100 my-2 py-2 shadow-sm ${active ? "border-primary border-2" : ""}`}>
 			<div className="card-body d-flex flex-column">
-				<h3 className="card-title text-center mb-3">{title}</h3>
+				<div className="d-flex justify-content-center align-items-center pb-2">
+					<h3 className="card-title text-center">{title}</h3>
+					{popular && <span className="position-absolute end-0 me-4 rounded-pill bg-primary px-2" style={{ fontSize: "14px"}}>Popular</span>}
+				</div>
 				<h2 className="text-center mb-3">
 					{price}
 					<span className="text-muted fs-6">/month</span>
