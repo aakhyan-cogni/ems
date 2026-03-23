@@ -12,6 +12,7 @@ import Antigravity from "./components/special/Antigravity";
 import Dashboard from "./pages/Dashboard";
 import EventCreationForm from "./components/EventCreationForm.tsx";
 import { Toaster } from "react-hot-toast";
+import Pricing from "./pages/Pricing.tsx";
 
 
 createRoot(document.getElementById("root")!).render(
@@ -40,7 +41,8 @@ createRoot(document.getElementById("root")!).render(
 				<Route path="/login" element={<Login />} />
 				<Route path="/events" element={<GlobalEventPage />} />
 				<Route path="/dashboard" element={<Dashboard />} />
-				<Route path="/create" element={<EventCreationForm />}></Route>
+				<Route path="/create" element={<EventCreationForm />} />
+				<Route path="/pricing" element={<Pricing />} />
 			</Routes>
 			<Footer />
 			<Toaster position="bottom-center"/>
