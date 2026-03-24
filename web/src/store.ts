@@ -24,9 +24,16 @@ export const useLocalDB = create<State>()(
 			setUser(data) {
 				if (typeof data !== "function") {
 					set({ user: data });
-				} else if (this.user) {
-					const newUser = data(this.user);
-					set({ user: newUser });
+				} else {
+					set((state) => {
+						if (!state.user) return state;
+						const newUser = data(state.user);
+						const updatedUsers = state.users.map((u) => {
+							if (u.email === newUser.email) return newUser;
+							return u;
+						});
+						return { user: newUser, users: updatedUsers };
+					});
 				}
 			},
 			addUser(data) {
@@ -37,9 +44,9 @@ export const useLocalDB = create<State>()(
 			deleteUser(email) {
 				set((state) => {
 					return {
-						users: state.users.filter(u => u.email !== email)
-					}
-				})
+						users: state.users.filter((u) => u.email !== email),
+					};
+				});
 			},
 		}),
 		{

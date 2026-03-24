@@ -6,12 +6,18 @@ import Female_3 from "../../../assets/Profile_Avatars/Female_3.jpeg";
 import Male_1 from "../../../assets/Profile_Avatars/Male_1.jpeg";
 import Male_2 from "../../../assets/Profile_Avatars/Male_2.jpeg";
 import Male_3 from "../../../assets/Profile_Avatars/Male_3.jpg";
-import { em } from "motion/react-client";
+import { AnimatePresence, motion } from "motion/react";
+import { useLocalDB } from "../../../store";
+import toast from "react-hot-toast";
 
 const BasicProfileInfo = () => {
 	// const [section_icon, setSectionIcon] = useState("success");
-	// const [section, setSection] = useState("Basic Profile Info");c
+	// const [section, setSection] = useState("Basic Profile Info");
 	const [isUpdated, setUpdate] = useState(false);
+	const [showModal, setShowModal] = useState(false);
+	const { user, setUser } = useLocalDB();
+	const profileImg = user?.avatar ?? "Male_1";
+	const images = { Female_1, Female_2, Female_3, Male_1, Male_2, Male_3 };
 
 	const [fname, setFname] = useState("");
 	const [lname, setLname] = useState("");
@@ -20,8 +26,71 @@ const BasicProfileInfo = () => {
 	const [dob, setDob] = useState("");
 	const [gender, setGender] = useState("");
 
+	function handleProfilePicChange(e: React.MouseEvent<HTMLImageElement>) {
+		e.preventDefault();
+		const newAvatar = e.currentTarget.id;
+		setUser((prevUser) => {
+			return {
+				...prevUser,
+				avatar: newAvatar,
+			};
+		});
+		toast.success(`Avatar updated successfully.`);
+		setShowModal(false);
+		return;
+	}
+
+	const ModalComponent = () => {
+		return (
+			<div
+				className="modal show d-block p-4"
+				tabIndex={-1}
+				style={{ backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", zIndex: 1050 }}
+			>
+				<div className="modal-dialog modal-dialog-centered modal-lg">
+					<motion.div
+						initial={{ opacity: 0, scale: 0.9 }}
+						animate={{ opacity: 1, scale: 1 }}
+						exit={{ opacity: 0, scale: 0.9 }}
+						className="modal-content border-0 bg-body text-body rounded-4 overflow-hidden shadow-lg"
+					>
+						<div className="modal-header">
+							<h5 className="modal-title">Select your avatar</h5>
+							<button
+								type="button"
+								className="btn-close"
+								onClick={() => setShowModal(false)}
+								data-bs-dismiss="modal"
+								aria-label="Close"
+							></button>
+						</div>
+						<div className="modal-body">
+							<div className="row g-4 justify-content-center">
+								{Object.values(images).map((src, i) => {
+									return (
+										<div key={i} className="col-4 col-lg-2 text-center">
+											<img
+												id={Object.keys(images)[i]}
+												src={src}
+												onClick={handleProfilePicChange}
+												className="img-fluid rounded-circle"
+												style={{ aspectRatio: "1 / 1", objectFit: "cover", cursor: "pointer" }}
+												alt="profile"
+											/>
+										</div>
+									);
+								})}
+							</div>
+						</div>
+					</motion.div>
+				</div>
+			</div>
+		);
+	};
+
 	return (
 		<div className="container-fluid h-100 d-flex flex-column personal-wrapper">
+			<AnimatePresence>{showModal && <ModalComponent />}</AnimatePresence>
 			<div className="flex-shrink-0">
 				<div className="d-flex align-items-center w-100 overflow-hidden">
 					<div className={`bg-info rounded-circle mx-2`} style={{ width: "10px", height: "10px" }} />
@@ -35,10 +104,20 @@ const BasicProfileInfo = () => {
 					<div className="row g-3">
 						{/* Profile image upload */}
 						<div className="col-12  d-flex flex-column align-items-center justify-content-center">
-							<img src={Male_1} alt="Profile Img" className="  w-25 m-3 rounded-circle" />
+							<img
+								src={images[profileImg as keyof typeof images]}
+								alt="Profile Img"
+								className="w-25 m-3 rounded-circle"
+							/>
 							{/* <label className="justify-content-center align-middle"></label> */}
 							{/* <input type="file" className="form-control align-content-center justify-content-center align-self-center" id="upload_profile_pic"  accept=".jpeg/.png"/> */}
-							<button className={`w-50 bg-info text-dark border-none form-control rounded-2`}>
+							<button
+								onClick={(e) => {
+									e.preventDefault();
+									setShowModal(true);
+								}}
+								className={`w-50 bg-info text-dark border-none form-control rounded-2`}
+							>
 								Change Avatar
 							</button>
 						</div>
@@ -49,7 +128,7 @@ const BasicProfileInfo = () => {
 								First Name <span className="text-danger">*</span>
 							</label>
 							<input
-								required
+								// required
 								// onKeyUp={() => setUpdate(true)}
 								onChange={(e) => {
 									setUpdate(true);
@@ -76,7 +155,7 @@ const BasicProfileInfo = () => {
 								Last Name <span className="text-danger">*</span>
 							</label>
 							<input
-								required
+								// required
 								// onKeyUp={() => {
 								// 	setUpdate(true);
 								// }}
@@ -103,7 +182,12 @@ const BasicProfileInfo = () => {
 						{/* Full Name */}
 						<div className="col-12">
 							<label className="form-label">Full Name</label>
-							<input type="text" disabled className="form-control " value={fname.trim() + " " + lname.trim()} />
+							<input
+								type="text"
+								disabled
+								className="form-control "
+								value={fname.trim() + " " + lname.trim()}
+							/>
 						</div>
 
 						{/* Email */}
@@ -112,7 +196,7 @@ const BasicProfileInfo = () => {
 								Email <span className="text-danger">*</span>
 							</label>
 							<input
-								required
+								// required
 								// onKeyUp={() => {
 								// 	setUpdate(true);
 								// }}
@@ -142,7 +226,7 @@ const BasicProfileInfo = () => {
 								Phone Number <span className="text-danger">*</span>
 							</label>
 							<input
-								required
+								// required
 								// onKeyUp={() => {
 								// 	setUpdate(true);
 								// }}
@@ -209,7 +293,7 @@ const BasicProfileInfo = () => {
 							<select
 								name="gender"
 								className="form-control"
-								required
+								// required
 								onChange={(e) => {
 									setUpdate(true);
 									setGender(e.target.value);
