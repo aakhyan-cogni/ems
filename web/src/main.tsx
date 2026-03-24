@@ -45,7 +45,7 @@ createRoot(document.getElementById("root")!).render(
 				<Route path="/pricing" element={<Pricing />} />
 			</Routes>
 			<Footer />
-			{/* <Toaster position="bottom-center"/> */}
+			<Toaster position="bottom-center"/>
 		</main>
 		{/* <Navbar />
 		<Routes>
