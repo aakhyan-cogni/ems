@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import toast from "react-hot-toast";
 import { useLocalDB, type User } from "../store";
+import { useNavigate } from "react-router";
 
 const fadeInUp = {
 	hidden: { opacity: 0, y: 20 },
@@ -10,6 +11,7 @@ const fadeInUp = {
 
 export default function Login() {
 	const [login, setLogin] = useState<boolean>(true);
+	const navigate = useNavigate();
 	const { users, setUser, addUser } = useLocalDB();
 
 	const toggleMode = () => setLogin(!login);
@@ -25,6 +27,7 @@ export default function Login() {
 				if (user.password === data.password) {
 					setUser(user);
 					toast.success(`Welcome back ${user.name.split(" ")[0]}!`);
+					navigate("/dashboard");
 				} else toast.error(`Invalid Email or Password!`);
 			} else toast.error(`Invalid Email or Password!`);
 		} else {
@@ -35,6 +38,7 @@ export default function Login() {
 				if (possibleUser.password === data.password) {
 					setUser(data);
 					toast.success(`Welcome back ${fname}!`);
+					navigate("/dashboard");
 					return;
 				}
 				toast.error(`A user already exists with this email!`);
@@ -43,6 +47,7 @@ export default function Login() {
 			setUser(data);
 			addUser(data);
 			toast.success(`Hey ${fname}, Welcome to EMS`);
+			navigate("/dashboard");
 		}
 	};
 

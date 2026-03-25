@@ -6,10 +6,13 @@ import OrganizationalInfo from "./Dashboard/Personal_Info_Dashboard/Organization
 import SavedPaymentMethods from "./Dashboard/Payment_Info_Dashboard/SavedPaymentMethods";
 import TransactionHistory from "./Dashboard/Payment_Info_Dashboard/TransactionHistory";
 import SubscriptionPlans from "./Dashboard/Payment_Info_Dashboard/SubscriptionPlans";
-
+import { useLocalDB } from "../store";
+import { useNavigate } from "react-router";
 
 export default function ProfileLayout() {
 	const [active, setActive] = useState("dashboard");
+	const { setUser } = useLocalDB();
+	const navigate = useNavigate();
 	const [hover, setHover] = useState("");
 	const [isLogoutHovered, setIsLogoutHovered] = useState(false);
 
@@ -158,7 +161,10 @@ export default function ProfileLayout() {
 								className={`btn w-100 text-warning ${isLogoutHovered ? "btn-warning text-black" : ""}`}
 								onMouseOver={() => setIsLogoutHovered(true)}
 								onMouseLeave={() => setIsLogoutHovered(false)}
-								onClick={() => {}}
+								onClick={() => {
+									setUser(null);
+									navigate("/login");
+								}}
 							>
 								Logout
 							</button>
@@ -183,12 +189,10 @@ export default function ProfileLayout() {
 
 // export function PersonalContent() {
 
-
 // 	// let i=0;
 // 	const contents=[<BasicProfileInfo/>,<Address/>,<OrganizationalInfo/>];
 // 	const [i,setI]=useState(0);
 // 	const [content,setContent]=useState(contents[i]);
-
 
 // 	function handleSave()
 // 	{
@@ -214,60 +218,60 @@ export default function ProfileLayout() {
 // 		{content}
 
 //         <div className="row ">
-// 			<div className={`col-12 d-flex  align-items-between justify-content-between `}>	
+// 			<div className={`col-12 d-flex  align-items-between justify-content-between `}>
 // 				<button onClick={handlePrevious} disabled={content===contents[0]} className={` float-start w-25 text-dark border-none form-control rounded-2 ${(content==contents[0])?"bg-secondary":"bg-primary"}`} >Previous</button>
 // 				<button onClick={()=> setI(i+1)} className={` float-end bg-info w-25 text-dark border-none form-control rounded-2`} >Save & Next</button>
 // 			</div>
 //         </div>
 //     </div>
-	
+
 //   )
 // }
 
 export function PersonalContent() {
-  const contents = [<BasicProfileInfo/>, <Address/>, <OrganizationalInfo/>];
+	const contents = [<BasicProfileInfo />, <Address />, <OrganizationalInfo />];
 
-  const [step, setStep] = useState(0);
+	const [step, setStep] = useState(0);
 
-  const content = contents[step];
+	const content = contents[step];
 
-  function handleSaveNext() {
-    setStep((prev) => (prev + 1) % contents.length);
-  }
+	function handleSaveNext() {
+		setStep((prev) => (prev + 1) % contents.length);
+	}
 
-  function handlePrevious() {
-    setStep((prev) => Math.max(prev - 1, 0));
-  }
+	function handlePrevious() {
+		setStep((prev) => Math.max(prev - 1, 0));
+	}
 
-  const isFirst = step === 0;
-  const isLast = step === contents.length - 1;
+	const isFirst = step === 0;
+	const isLast = step === contents.length - 1;
 
-  return (
-    <div className="container-fluid h-100 d-flex flex-column personal-wrapper">
-      {content}
+	return (
+		<div className="container-fluid h-100 d-flex flex-column personal-wrapper">
+			{content}
 
-      <div className="row">
-        <div className="col-12 d-flex align-items-between justify-content-between">
-          <button
-            onClick={handlePrevious}
-            disabled={isFirst}
-            className={`float-start w-25 text-dark border-none form-control rounded-2 ${
-              isFirst ? "bg-secondary" : "bg-info"
-            }`}
-          >
-            Previous
-          </button>
+			<div className="row">
+				<div className="col-12 d-flex align-items-between justify-content-between">
+					<button
+						onClick={handlePrevious}
+						disabled={isFirst}
+						className={`float-start w-25 text-dark border-none form-control rounded-2 ${
+							isFirst ? "bg-secondary" : "bg-info"
+						}`}
+					>
+						Previous
+					</button>
 
-          <button
-            onClick={handleSaveNext}
-            className="float-end bg-info w-25 text-dark border-none form-control rounded-2"
-          >
-            {isLast ? "Save & Finish" : "Save & Next"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+					<button
+						onClick={handleSaveNext}
+						className="float-end bg-info w-25 text-dark border-none form-control rounded-2"
+					>
+						{isLast ? "Save & Finish" : "Save & Next"}
+					</button>
+				</div>
+			</div>
+		</div>
+	);
 }
 
 function DashboardContent() {
@@ -275,50 +279,50 @@ function DashboardContent() {
 }
 
 function PaymentContent() {
-	const contents = [<SavedPaymentMethods/>, <TransactionHistory/>, <SubscriptionPlans/>];
+	const contents = [<SavedPaymentMethods />, <TransactionHistory />, <SubscriptionPlans />];
 
-  const [step, setStep] = useState(0);
+	const [step, setStep] = useState(0);
 
-  const content = contents[step];
+	const content = contents[step];
 
-  function handleSaveNext() {
-    setStep((prev) => (prev + 1) % contents.length);
-  }
+	function handleSaveNext() {
+		setStep((prev) => (prev + 1) % contents.length);
+	}
 
-  function handlePrevious() {
-    setStep((prev) => Math.max(prev - 1, 0));
-  }
+	function handlePrevious() {
+		setStep((prev) => Math.max(prev - 1, 0));
+	}
 
-  const isFirst = step === 0;
-  const isLast = step === contents.length - 1;
+	const isFirst = step === 0;
+	const isLast = step === contents.length - 1;
 
-  return (
-    <div className="container-fluid h-100 d-flex flex-column personal-wrapper">
-      {content}
+	return (
+		<div className="container-fluid h-100 d-flex flex-column personal-wrapper">
+			{content}
 
-      <div className="row">
-        <div className="col-12 d-flex align-items-between justify-content-between">
-          <button
-            onClick={handlePrevious}
-            disabled={isFirst}
-            className={`float-start w-25 text-dark border-none form-control rounded-2 ${
-              isFirst ? "bg-secondary" : "bg-info"
-            }`}
-          >
-            Previous
-          </button>
+			<div className="row">
+				<div className="col-12 d-flex align-items-between justify-content-between">
+					<button
+						onClick={handlePrevious}
+						disabled={isFirst}
+						className={`float-start w-25 text-dark border-none form-control rounded-2 ${
+							isFirst ? "bg-secondary" : "bg-info"
+						}`}
+					>
+						Previous
+					</button>
 
-          <button
-            onClick={handleSaveNext}
-			disabled={isLast}
-            className={` ${(isLast)?"bg-secondary":"bg-info"} float-end  w-25 text-dark border-none form-control rounded-2`}
-          >
-            {"Next"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+					<button
+						onClick={handleSaveNext}
+						disabled={isLast}
+						className={` ${isLast ? "bg-secondary" : "bg-info"} float-end  w-25 text-dark border-none form-control rounded-2`}
+					>
+						{"Next"}
+					</button>
+				</div>
+			</div>
+		</div>
+	);
 }
 
 function SettingsContent() {
