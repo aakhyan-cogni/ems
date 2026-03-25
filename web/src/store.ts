@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 interface State {
 	user: User | null;
 	users: User[];
-	setUser: (data: User | ((obj: User) => User)) => void;
+	setUser: (data: User | ((obj: User) => User) | null) => void;
 	addUser: (data: User) => void;
 	deleteUser: (email: string) => void;
 }

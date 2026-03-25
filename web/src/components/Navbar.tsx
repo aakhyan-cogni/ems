@@ -1,10 +1,13 @@
 import { Link, NavLink } from "react-router";
 import ThemeSwitch from "./ThemeSwitch";
+import { useLocalDB } from "../store";
+import { Avatar } from "./Avatar";
 
 export default function Navbar() {
+	const { user } = useLocalDB();
 	return (
-		<nav className="navbar navbar-expand-lg border-bottom sticky-top bg-body-tertiary">
-			<div className="container gap-md-5">
+		<nav className="navbar navbar-expand-lg border-bottom sticky-top bg-body-tertiary flex-nowrap">
+			<div className="container gap-md-2">
 				<Link className="navbar-brand fw-bold text-primary m-0 mx-md-5" to="/">
 					EMS
 				</Link>
@@ -23,35 +26,44 @@ export default function Navbar() {
 
 				<div className="collapse navbar-collapse" id="emsNav">
 					<ul className="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3 text-center">
-						<li className="nav-item">
+						{/* <li className="nav-item">
 							<NavLink className="nav-link" to="/">
 								Home
 							</NavLink>
-						</li>
+						</li> */}
 						<li className="nav-item">
 							<NavLink className="nav-link" to="/events">
-								Events
+								Explore Events
 							</NavLink>
 						</li>
-						<li className="nav-item">
-							<NavLink className="nav-link" to="/dashboard">
-								Dashboard
-							</NavLink>
-						</li>
-						<li className="nav-item">
-							<NavLink className="nav-link" to="/pricing">
-								Pricing
-							</NavLink>
-						</li>
+						{user && (
+							<li className="nav-item">
+								<NavLink className="nav-link" to="/dashboard">
+									Dashboard
+								</NavLink>
+							</li>
+						)}
+						{user === null && (
+							<li className="nav-item">
+								<NavLink className="nav-link" to="/pricing">
+									Pricing
+								</NavLink>
+							</li>
+						)}
 					</ul>
-
-					<div className="d-flex flex-column flex-lg-row align-items-center gap-3 mt-3 mt-lg-0">
-						<ThemeSwitch />
-						<Link to="/login" className="btn btn-primary rounded-pill px-4 w-100 w-lg-auto shadow-sm">
-							Login
-						</Link>
-					</div>
 				</div>
+			</div>
+			<div className="d-flex align-items-center gap-3 me-5">
+				<ThemeSwitch />
+				{user ? (
+					<div style={{ width: "2rem" }}>
+						<Avatar user={user} />
+					</div>
+				) : (
+					<Link to="/login" className="btn btn-primary rounded-pill px-4 w-100 w-lg-auto shadow-sm">
+						Login
+					</Link>
+				)}
 			</div>
 		</nav>
 	);
