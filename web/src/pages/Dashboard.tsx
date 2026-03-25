@@ -1,12 +1,21 @@
-import React from 'react';
-import TabBar from '../components/TabBar';
+import { useNavigate } from "react-router";
+import TabBar from "../components/TabBar";
+import { useLocalDB } from "../store";
+import { useEffect } from "react";
 
 const Dashboard = () => {
-    return (
-        <div>
-            <TabBar/>
-        </div>
-    );
-}
+	const navigate = useNavigate();
+	const { user } = useLocalDB();
+
+	useEffect(() => {
+		if (user === null) navigate("/login");
+	}, []);
+
+	return (
+		<div>
+			<TabBar />
+		</div>
+	);
+};
 
 export default Dashboard;
