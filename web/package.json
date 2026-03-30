@@ -18,6 +18,7 @@
 		"lottie-react": "^2.4.1",
 		"motion": "^12.35.2",
 		"react": "^19.2.0",
+		"react-bootstrap": "^2.10.10",
 		"react-dom": "^19.2.0",
 		"react-hot-toast": "^2.6.0",
 		"react-router": "^7.13.1",
