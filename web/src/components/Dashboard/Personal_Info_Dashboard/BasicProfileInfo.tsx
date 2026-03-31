@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useReducer } from "react";
 import { useState } from "react";
 import Female_1 from "../../../assets/Profile_Avatars/Female_1.jpeg";
 import Female_2 from "../../../assets/Profile_Avatars/Female_2.jpeg";
@@ -10,44 +10,40 @@ import { AnimatePresence, motion } from "motion/react";
 import { useLocalDB } from "../../../store";
 import toast from "react-hot-toast";
 
-
 interface OrganizationalInfoProps {
-  registerSave: (callback: () => void) => void;
+	registerSave: (callback: () => void) => void;
 }
 
-const BasicProfileInfo: React.FC<OrganizationalInfoProps>  = ({registerSave}) => {
-	// const [section_icon, setSectionIcon] = useState("success");
-	// const [section, setSection] = useState("Basic Profile Info");
+const BasicProfileInfo: React.FC<OrganizationalInfoProps> = ({ registerSave }) => {
 	const [isUpdated, setUpdate] = useState(false);
 	const [showModal, setShowModal] = useState(false);
 	const { user, setUser } = useLocalDB();
+	if (!user) return null;
 	const profileImg = user?.avatar ?? "Male_1";
 	const images = { Female_1, Female_2, Female_3, Male_1, Male_2, Male_3 };
-	const {saveBasicProfile , user:currentUserData} = useLocalDB();
 
-	const [fname, setFname] = useState(currentUserData?.personalData?.firstName || "");
-	const [lname, setLname] = useState(currentUserData?.personalData?.lastName|| "");
-	const [email, setEmail] = useState(currentUserData?.email || "");
-	const [phone, setPhone] = useState(currentUserData?.personalData?.phoneNumber || "");
-	const [dob, setDob] = useState(currentUserData?.personalData?.dob || "");
-	const [gender, setGender] = useState(currentUserData?.personalData?.gender || "");
-
-	
-	useEffect(() => {
-
-		const data ={
-			firstName:fname,
-			lastName:lname,
-			email,
-			phoneNumber:phone,
-			dob,
-			gender 
+	const reducer = (state: typeof user, action: ReducerAction): typeof user => {
+		return {
+			...state,
+			[action.type]: String(action.value),
 		};
-		registerSave(() => {
-		saveBasicProfile(data);
-		});
-	}, [fname, lname,email, phone, dob,gender]);
+	};
 
+	const [state, dispatch] = useReducer(reducer, user);
+
+	useEffect(() => {
+		// Updating cached function
+		registerSave(() => {
+			const [fname, _] = state.name.split(" ");
+			if (fname.length === 0) {
+				return alert("First Name cannot be empty....");
+			}
+			if (state.email.length === 0) {
+				return alert("Email cannot be empty...");
+			}
+			setUser((oldUser) => ({ ...oldUser, ...state }));
+		});
+	}, [state]);
 
 	function handleProfilePicChange(e: React.MouseEvent<HTMLImageElement>) {
 		e.preventDefault();
@@ -125,15 +121,12 @@ const BasicProfileInfo: React.FC<OrganizationalInfoProps>  = ({registerSave}) =>
 			<div className="flex-grow-1 overflow-y-auto overflow-x-hidden content-pane">
 				<form className="px-3 pb-3" onSubmit={(e) => e.preventDefault()}>
 					<div className="row g-3">
-						{/* Profile image upload */}
 						<div className="col-12  d-flex flex-column align-items-center justify-content-center">
 							<img
 								src={images[profileImg as keyof typeof images]}
 								alt="Profile Img"
 								className="w-25 m-3 rounded-circle"
 							/>
-							{/* <label className="justify-content-center align-middle"></label> */}
-							{/* <input type="file" className="form-control align-content-center justify-content-center align-self-center" id="upload_profile_pic"  accept=".jpeg/.png"/> */}
 							<button
 								onClick={(e) => {
 									e.preventDefault();
@@ -145,199 +138,110 @@ const BasicProfileInfo: React.FC<OrganizationalInfoProps>  = ({registerSave}) =>
 							</button>
 						</div>
 
-						{/* First Name */}
 						<div className="col-12 col-lg-6">
 							<label className="form-label">
 								First Name <span className="text-danger">*</span>
 							</label>
 							<input
-								// required
-								// onKeyUp={() => setUpdate(true)}
 								onChange={(e) => {
 									setUpdate(true);
-									setFname(e.target.value);
+									dispatch({
+										type: "name",
+										value: `${e.target.value} ${state.name.split(" ")[1].length ? state.name.split(" ")[1] : ""}`,
+									});
 								}}
-								value={fname}
+								value={state.name.split(" ")[0]}
 								type="text"
 								className="form-control"
 								placeholder="First Name"
-								// onFocus={(e)=>{e.target.value= currentUserData?.personalData?.firstName || ""}}
-								// value={currentUserData?.personalData?.firstName}
 							/>
-							{/* <div
-                hidden={!isUpdated}
-                className="mt-1 bg-danger text-center rounded-2 py-1"
-              >
-                <span className="text-light fw-bold" style={{ fontSize: 12 }}>
-                  don’t forget to save
-                </span>
-              </div> */}
 						</div>
 
 						{/* Last Name */}
 						<div className="col-12 col-lg-6">
-							<label className="form-label">
-								Last Name <span className="text-danger">*</span>
-							</label>
+							<label className="form-label">Last Name</label>
 							<input
-								// required
-								// onKeyUp={() => {
-								// 	setUpdate(true);
-								// }}
 								onChange={(e) => {
 									setUpdate(true);
-									setLname(e.target.value);
+									dispatch({ type: "name", value: state.name.split(" ")[0] + " " + e.target.value });
 								}}
-								value={lname}
+								value={state.name.split(" ")[1] || ""}
 								type="text"
 								className={`form-control `}
 								title={!isUpdated ? "" : "Don't forget to save"}
-								// placeholder="Last Name"
-								// placeholder={currentUserData?.personalData?.lastName}
 							/>
-							{/* <div
-                hidden={!isUpdated}
-                className="mt-1 bg-danger text-center rounded-2 py-1"
-              >
-                <span className="text-light fw-bold" style={{ fontSize: 12 }}>
-                  don’t forget to save
-                </span>
-              </div> */}
 						</div>
 
-						{/* Full Name */}
 						<div className="col-12">
 							<label className="form-label">Full Name</label>
-							<input
-								type="text"
-								disabled
-								className="form-control "
-								value={fname.trim() + " " + lname.trim()}
-							/>
+							<input type="text" disabled className="form-control " value={state.name} />
 						</div>
 
-						{/* Email */}
 						<div className="col-12 col-lg-6">
 							<label className="form-label">
 								Email <span className="text-danger">*</span>
 							</label>
 							<input
-								// required
-								// onKeyUp={() => {
-								// 	setUpdate(true);
-								// }}
 								onChange={(e) => {
 									setUpdate(true);
-									setEmail(e.target.value);
+									dispatch({ type: "email", value: e.target.value });
 								}}
-								value={email}
+								value={state.email}
 								type="email"
 								className={`form-control `}
 								title={!isUpdated ? "" : "Don't forget to save"}
 								placeholder="e.g. email@email.com"
 							/>
-							{/* <div
-                hidden={!isUpdated}
-                className="mt-1 bg-danger text-center rounded-2 py-1"
-              >
-                <span className="text-light fw-bold" style={{ fontSize: 12 }}>
-                  don’t forget to save
-                </span>
-              </div> */}
 						</div>
 
-						{/* Phone Number */}
 						<div className="col-12 col-lg-6">
-							<label className="form-label">
-								Phone Number <span className="text-danger">*</span>
-							</label>
+							<label className="form-label">Phone Number</label>
 							<input
-								// required
-								// onKeyUp={() => {
-								// 	setUpdate(true);
-								// }}
 								onChange={(e) => {
+									if (isNaN(+e.target.value)) return;
 									setUpdate(true);
-									setPhone(e.target.value);
+									dispatch({ type: "phoneNumber", value: e.target.value });
 								}}
-								value={phone}
+								value={state.phoneNumber || ""}
 								type="tel"
 								className={`form-control `}
 								title={!isUpdated ? "" : "Don't forget to save"}
-								placeholder="+91"
+								placeholder="Enter your number"
 							/>
-							{/* <div
-                hidden={isUpdated !== "phone"}
-                className="mt-1 bg-danger text-center rounded-2 py-1"
-              >
-                <span className="text-light fw-bold" style={{ fontSize: 12 }}>
-                  don’t forget to save
-                </span>
-              </div> */}
 						</div>
 
-						{/* DOB */}
 						<div className="col-12 col-lg-6">
 							<label className="form-label">Date of Birth </label>
 							<input
-								// onKeyUp={() => {
-								// 	setUpdate(true);
-								// }}
 								onChange={(e) => {
 									setUpdate(true);
-									setDob(e.target.value);
+									dispatch({ type: "dob", value: e.target.value });
 								}}
-								value={dob}
+								value={state.dob?.split("T")[0] ?? ""}
 								type="date"
-								className={`form-control `}
+								className={`form-control`}
 								title={!isUpdated ? "" : "Don't forget to save"}
 							/>
-							{/* <div
-                hidden={!isUpdated}
-                className="mt-1 bg-danger text-center rounded-2 py-1"
-              >
-                <span className="text-light fw-bold" style={{ fontSize: 12 }}>
-                  don’t forget to save
-                </span>
-              </div> */}
 						</div>
 
-						{/* Gender */}
 						<div className="col-12 col-lg-6">
-							<label className="form-label">
-								Gender <span className="text-danger">*</span>
-							</label>
-							{/* <input
-                onBlur={() => setUpdate("")}
-                onKeyUp={() => {setUpdate("dob");}}
-                type="date"
-                className={`form-control `}
-                title={(isUpdated!== "dob")?"":"Don't forget to save"}
-                placeholder="Last Name"
-              /> */}
+							<label className="form-label">Gender</label>
 							<select
 								name="gender"
 								className="form-control"
-								// required
 								onChange={(e) => {
 									setUpdate(true);
-									setGender(e.target.value);
+									dispatch({ type: "gender", value: e.target.value });
 								}}
-								value={gender}
+								value={state.gender ?? ""}
 							>
-								<option value="Select">____</option>
+								<option value={undefined} hidden>
+									---Select---
+								</option>
 								<option value="Male">Male</option>
 								<option value="Female">Female</option>
-								<option value="Other">Other</option>
+								<option value="Others">Others</option>
 							</select>
-							{/* <div
-                hidden={isUpdated !== "dob"}
-                className="mt-1 bg-danger text-center rounded-2 py-1"
-              >
-                <span className="text-light fw-bold" style={{ fontSize: 12 }}>
-                  don’t forget to save
-                </span>
-              </div> */}
 						</div>
 					</div>
 				</form>
@@ -346,13 +250,15 @@ const BasicProfileInfo: React.FC<OrganizationalInfoProps>  = ({registerSave}) =>
 			<div hidden={!isUpdated} className="col-6 alert alert-warning" role="alert">
 				⚠️ Don't forget to save
 			</div>
-
-			{/* <div className={`${!isUpdated?"col-12":"col-6"} d-flex flex-column align-items-end justify-content-end`}>
-				
-				<button className={` ${(!isUpdated)?"bg-secondary w-25":"bg-info w-50"} text-dark border-none form-control rounded-2`} >Save & Next</button>
-			</div> */}
 		</div>
 	);
 };
 
 export default BasicProfileInfo;
+
+type ActionItemType = "name" | "dob" | "gender" | "email" | "phoneNumber";
+
+interface ReducerAction {
+	type: ActionItemType;
+	value: unknown;
+}

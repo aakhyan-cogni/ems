@@ -1,33 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { useLocalDB } from "../../../store";
 
-
 interface OrganizationalInfoProps {
-  registerSave: (callback: () => void) => void;
+	registerSave: (callback: () => void) => void;
 }
 
-const OrganizationalInfo: React.FC<OrganizationalInfoProps> = ({registerSave}) => {
+const OrganizationalInfo: React.FC<OrganizationalInfoProps> = ({ registerSave }) => {
 	const [isUpdated, setUpdate] = useState(false);
-	const {saveOrganizationalInfo , user:currentUserData} = useLocalDB();
+	const { user, setUser } = useLocalDB();
+	if (!user) return null;
 
-	const [org, setOrg] = useState(currentUserData?.personalData?.orgName|| "");
-	const [role, setRole] = useState(currentUserData?.personalData?.role|| "");
-    const [website, setWebsite] = useState(currentUserData?.personalData?.companyWebsite|| "");
-	const [bio, setBio] = useState(currentUserData?.personalData?.bio|| "");
+	const reducer = (state: typeof user, action: ReducerAction): typeof user => {
+		return {
+			...state,
+			[action.type]: String(action.value),
+		};
+	};
+
+	const [state, dispatch] = useReducer(reducer, user);
 
 	useEffect(() => {
-		
-				const data ={
-					orgName:org,
-					role,
-					companyWebsite:website,
-					bio
-				};
-				registerSave(() => {
-				saveOrganizationalInfo(data);
-				});
-			}, [org,role,website,bio]);
-
+		// Updating cached function
+		registerSave(() => {
+			setUser((oldUser) => ({ ...oldUser, ...state }));
+		});
+	}, [state]);
 
 	return (
 		<div className="container-fluid h-auto d-flex flex-column personal-wrapper">
@@ -41,66 +38,58 @@ const OrganizationalInfo: React.FC<OrganizationalInfoProps> = ({registerSave}) =
 			<div className="flex-grow-1 overflow-y-auto overflow-x-hidden content-pane">
 				<form className="px-3 pb-3" onSubmit={(e) => e.preventDefault()}>
 					<div className="row g-3">
-
-                        {/* Organization name */}
 						<div className="col-12 col-lg-6">
 							<label className="form-label">Organization Name</label>
 							<input
-								// onKeyUp={() => setUpdate(true)}
-                                onChange={(e) => {
-										setUpdate(true);
-										setOrg(e.target.value);
-									}}
-								value={org}
+								onChange={(e) => {
+									setUpdate(true);
+									dispatch({ type: "orgName", value: e.target.value });
+								}}
+								value={state.orgName || ""}
 								type="text"
 								className="form-control"
 								placeholder="Organization name"
 							/>
 						</div>
 
-                        {/* Role */}
 						<div className="col-12 col-lg-6">
 							<label className="form-label">Role / designation</label>
 							<input
-								// onKeyUp={() => setUpdate(true)}
-                                onChange={(e) => {
-										setUpdate(true);
-										setRole(e.target.value);
-									}}
-								value={role}
+								onChange={(e) => {
+									setUpdate(true);
+									dispatch({ type: "role", value: e.target.value });
+								}}
+								value={state.role || ""}
 								type="text"
 								className="form-control"
 								placeholder="Role"
 							/>
 						</div>
 
-                        {/* Company Website */}
 						<div className="col-12 col-lg-6">
 							<label className="form-label">Company Website</label>
 							<input
-								// onKeyUp={() => setUpdate(true)}
-                                onChange={(e) => {
-										setUpdate(true);
-										setWebsite(e.target.value);
-									}}
-								value={website}
+								onChange={(e) => {
+									setUpdate(true);
+									dispatch({ type: "companyWebsite", value: e.target.value });
+								}}
+								value={state.companyWebsite || ""}
 								type="url"
 								className="form-control"
 								placeholder="Company website"
 							/>
 						</div>
 
-                        {/* Bio */}
 						<div className="col-12 col-lg-6">
 							<label className="form-label">Bio / description</label>
 							<textarea
 								rows={3}
 								// onKeyUp={() => setUpdate(true)}
-                                onChange={(e) => {
-										setUpdate(true);
-										setBio(e.target.value);
-									}}
-								value={bio}
+								onChange={(e) => {
+									setUpdate(true);
+									dispatch({ type: "bio", value: e.target.value });
+								}}
+								value={state.bio || ""}
 								className="form-control"
 								placeholder="Bio"
 							/>
@@ -116,3 +105,10 @@ const OrganizationalInfo: React.FC<OrganizationalInfoProps> = ({registerSave}) =
 };
 
 export default OrganizationalInfo;
+
+type ActionItemType = "bio" | "role" | "orgName" | "companyWebsite";
+
+interface ReducerAction {
+	type: ActionItemType;
+	value: unknown;
+}
