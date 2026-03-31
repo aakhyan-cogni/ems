@@ -229,13 +229,17 @@ export default function ProfileLayout() {
 // }
 
 export function PersonalContent() {
-	const contents = [<BasicProfileInfo />, <Address />, <OrganizationalInfo />];
+
+	const saveHandlerRef = React.useRef<(() => void) | null>(null);
+
+	const contents = [<BasicProfileInfo registerSave={(fn:(() => void) | null) => (saveHandlerRef.current = fn)}/>, <Address registerSave={(fn:(() => void) | null) => (saveHandlerRef.current = fn)}/>, <OrganizationalInfo registerSave={(fn:(() => void) | null) => (saveHandlerRef.current = fn)}/>];
 
 	const [step, setStep] = useState(0);
 
 	const content = contents[step];
 
 	function handleSaveNext() {
+		saveHandlerRef.current?.();
 		setStep((prev) => (prev + 1) % contents.length);
 	}
 
@@ -279,9 +283,12 @@ function DashboardContent() {
 }
 
 function PaymentContent() {
-	const contents = [<SavedPaymentMethods />, <TransactionHistory />, <SubscriptionPlans />];
 
 	const [step, setStep] = useState(0);
+
+
+	const contents = [<SavedPaymentMethods/>, <TransactionHistory />, <SubscriptionPlans />];
+
 
 	const content = contents[step];
 

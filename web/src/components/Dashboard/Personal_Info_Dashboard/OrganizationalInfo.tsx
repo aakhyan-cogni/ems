@@ -1,12 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useLocalDB } from "../../../store";
 
-const OrganizationalInfo = () => {
+const OrganizationalInfo = ({registerSave}) => {
 	const [isUpdated, setUpdate] = useState(false);
+	const {saveOrganizationalInfo , user:currentUserData} = useLocalDB();
 
-	const [org, setOrg] = useState("");
-	const [role, setRole] = useState("");
-    const [website, setWebsite] = useState("");
-	const [bio, setBio] = useState("");
+	const [org, setOrg] = useState(currentUserData?.personalData?.orgName);
+	const [role, setRole] = useState(currentUserData?.personalData?.role);
+    const [website, setWebsite] = useState(currentUserData?.personalData?.companyWebsite);
+	const [bio, setBio] = useState(currentUserData?.personalData?.bio);
+
+	useEffect(() => {
+		
+				const data ={
+					orgName:org,
+					role,
+					websiteCompany:website,
+					bio
+				};
+				registerSave(() => {
+				saveOrganizationalInfo(data);
+				});
+			}, [org,role,website,bio]);
 
 
 	return (

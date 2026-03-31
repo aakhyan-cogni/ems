@@ -1,14 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import OrganizationalInfo from "./OrganizationalInfo";
 import { StaticElement } from "three/examples/jsm/transpiler/AST.js";
+import { useLocalDB } from "../../../store";
 
-const Address = () => {
+
+const Address = ({registerSave}) => {
 	const [isUpdated, setUpdate] = useState(false);
+	const {saveAddress , user:currentUserData} = useLocalDB();
+	
+	const [country, setCountry] = useState(currentUserData?.personalData?.country);
+	const [state, setState] = useState(currentUserData?.personalData?.state);
+	const [city, setCity] = useState(currentUserData?.personalData?.city);
+	const [zip, setZip] = useState(currentUserData?.personalData?.zipcode);
 
-	const [country, setCountry] = useState("");
-	const [state, setState] = useState("");
-	const [city, setCity] = useState("");
-	const [zip, setZip] = useState("");
+	useEffect(() => {
+	
+			const data ={
+				country,
+				state,
+				city,
+				zipcode:zip
+			};
+			registerSave(() => {
+			saveAddress(data);
+			});
+		}, [country, state, city, zip]);
+	
 
 	return (
 		<div>
