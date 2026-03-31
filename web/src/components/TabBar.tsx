@@ -7,6 +7,7 @@ import TransactionHistory from "./Dashboard/Payment_Info_Dashboard/TransactionHi
 import SubscriptionPlans from "./Dashboard/Payment_Info_Dashboard/SubscriptionPlans";
 import { useLocalDB } from "../store";
 import { useNavigate } from "react-router";
+import Dashboard from "./Dashboard/Dashboard";
 
 export default function ProfileLayout() {
 	const [active, setActive] = useState("dashboard");
@@ -174,7 +175,7 @@ export default function ProfileLayout() {
 				<main className="col-12 col-md-9 col-lg-10 p-3">
 					<div className="card shadow-sm h-100">
 						<div className="card-body">
-							{active === "dashboard" && <DashboardContent />}
+							{active === "dashboard" && <Dashboard />}
 							{active === "personal" && <PersonalContent />}
 							{active === "payment" && <PaymentContent />}
 							{active === "settings" && <SettingsContent />}
@@ -278,10 +279,6 @@ export function PersonalContent() {
 			</div>
 		</div>
 	);
-}
-
-function DashboardContent() {
-	return <>Dashboard</>;
 }
 
 function PaymentContent() {

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import type { Event } from "../../../server/src/types/event.type";
+import type { Event } from "../store";
 
 interface EventCardProps {
   event: Event;
@@ -14,7 +14,7 @@ const fadeInUp = {
 
 export function EventCard({ event, onClick }: EventCardProps) {
   const [timeLeft, setTimeLeft] = useState("");
-  const eventTime = new Date(event.eventDateTime).getTime();
+  const eventTime = new Date(event.date).getTime();
   const isPast = eventTime < Date.now();
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
 
     return (
       <span className="badge bg-primary px-3 py-2 shadow-sm">
-        {new Date(event.eventDateTime).toLocaleDateString("en-US", {
+        {new Date(event.date).toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
         })}
@@ -77,7 +77,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
       variants={fadeInUp}
       initial="hidden"
       animate="visible"
-      whileHover={!isPast ? { y: -10, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" } : {}}
+      // whileHover={!isPast ? { y: -10, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" } : {}}
       onClick={() => onClick(event)}
       
       className={`card h-100 border-0 shadow-sm overflow-hidden rounded-4 bg-body-tertiary ${isPast ? "opacity-60 grayscale" : ""}`}
@@ -90,7 +90,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
     >
       <div className="position-relative">
         <img
-          src={event.image}
+          src={"https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=1000"}
           className="card-img-top"
           alt={event.title}
           style={{ height: "200px", objectFit: "cover" }}
@@ -115,25 +115,24 @@ export function EventCard({ event, onClick }: EventCardProps) {
             {event.title}
           </h5>
           <span className="text-success fw-bold">
-            {event.price === 0 ? "FREE" : `${event.price} ${event.currency}`}
+            {event.price === 0 ? "FREE" : `₹${event.price}`}
           </span>
         </div>
 
         <div className="d-flex align-items-center gap-2 mb-2">
-          {/* text-body-secondary: turns gray in light mode, lighter gray in dark mode */}
           <p className="text-body-secondary small mb-0">📍 {event.location}</p>
-          {event.avgRating && (
+          {/* {event.avgRating && (
             <span className="ms-auto small fw-bold text-warning">
               ⭐ {event.avgRating}
             </span>
-          )}
+          )} */}
         </div>
 
         <p className="card-text text-body-secondary mb-3 line-clamp-2 small">
           {event.description}
         </p>
 
-        <div className="d-flex flex-wrap gap-1 mb-3">
+        {/* <div className="d-flex flex-wrap gap-1 mb-3">
           {event.tags?.split(",").slice(0, 3).map((tag, i) => (
             <span
               key={i}
@@ -142,10 +141,10 @@ export function EventCard({ event, onClick }: EventCardProps) {
               {tag.trim()}
             </span>
           ))}
-        </div>
+        </div> */}
 
         {/* border-color-translucent for theme-aware divider */}
-        <div className="pt-3 border-top border-secondary border-opacity-10 d-flex justify-content-between align-items-center">
+        {/* <div className="pt-3 border-top border-secondary border-opacity-10 d-flex justify-content-between align-items-center">
           <small
             className="text-body-secondary"
             style={{ color: isPast ? "" : "var(--bs-primary)" }}
@@ -155,7 +154,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
           <small className="fw-bold text-primary">
             {isPast ? "View Highlights →" : "View Details →"}
           </small>
-        </div>
+        </div> */}
       </div>
     </motion.div>
   );

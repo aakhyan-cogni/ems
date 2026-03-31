@@ -20,8 +20,8 @@ export interface Event {
 }
 
 export type Category =
-	| "Conferences"
-	| "Workshops"
+	| "Conference"
+	| "Workshop"
 	| "Social"
 	| "Entertainment"
 	| "Health & Wellness"
