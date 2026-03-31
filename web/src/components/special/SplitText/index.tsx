@@ -164,11 +164,10 @@ const SplitText: React.FC<SplitTextProps> = ({
 			wordWrap: "break-word",
 			willChange: "transform, opacity",
 		};
-		const classes = `split-parent ${className}`;
-		const Tag = (tag || "p") as React.ElementType;
+		const Tag: React.ElementType = tag || "p";
 
 		return (
-			<Tag ref={ref} style={style} className={classes}>
+			<Tag style={style} className={`split-parent ${className}`}>
 				{text}
 			</Tag>
 		);

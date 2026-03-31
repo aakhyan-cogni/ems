@@ -1,6 +1,4 @@
-import React from "react";
 import PlanCard from "./PlanCard";
-import { Cards } from "./SavedPaymentMethods";
 
 const SubscriptionPlans = () => {
   return (

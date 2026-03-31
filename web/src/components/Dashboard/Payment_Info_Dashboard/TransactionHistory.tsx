@@ -1,9 +1,4 @@
-import React from "react";
-
 const TransactionHistory = () => {
-
-	const theme=localStorage.getItem("theme");
-
 	return (
 		<div className="container-fluid h-100 d-flex flex-column personal-wrapper">
 			{/* Header */}

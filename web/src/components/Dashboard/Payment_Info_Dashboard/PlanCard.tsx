@@ -1,6 +1,6 @@
 import React from "react";
 import { PricingDetails } from "../../../config/constants";
-import { p } from "motion/react-client";
+// import { p } from "motion/react-client";
 
 type props = {
 	active?: boolean;

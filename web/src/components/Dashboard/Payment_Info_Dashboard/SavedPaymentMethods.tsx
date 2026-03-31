@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-
+import { useState } from "react";
 
 const SavedPaymentMethods = () => {
 	const [method, setMethod] = useState("Cards");
