@@ -11,8 +11,11 @@ import { useLocalDB } from "../../../store";
 import toast from "react-hot-toast";
 
 
+interface OrganizationalInfoProps {
+  registerSave: (callback: () => void) => void;
+}
 
-const BasicProfileInfo = ({registerSave}) => {
+const BasicProfileInfo: React.FC<OrganizationalInfoProps>  = ({registerSave}) => {
 	// const [section_icon, setSectionIcon] = useState("success");
 	// const [section, setSection] = useState("Basic Profile Info");
 	const [isUpdated, setUpdate] = useState(false);
@@ -22,12 +25,12 @@ const BasicProfileInfo = ({registerSave}) => {
 	const images = { Female_1, Female_2, Female_3, Male_1, Male_2, Male_3 };
 	const {saveBasicProfile , user:currentUserData} = useLocalDB();
 
-	const [fname, setFname] = useState(currentUserData?.personalData?.firstName);
-	const [lname, setLname] = useState(currentUserData?.personalData?.lastName);
-	const [email, setEmail] = useState(currentUserData?.email);
-	const [phone, setPhone] = useState(currentUserData?.personalData?.phoneNumber);
-	const [dob, setDob] = useState(currentUserData?.personalData?.dob);
-	const [gender, setGender] = useState(currentUserData?.personalData?.gender);
+	const [fname, setFname] = useState(currentUserData?.personalData?.firstName || "");
+	const [lname, setLname] = useState(currentUserData?.personalData?.lastName|| "");
+	const [email, setEmail] = useState(currentUserData?.email || "");
+	const [phone, setPhone] = useState(currentUserData?.personalData?.phoneNumber || "");
+	const [dob, setDob] = useState(currentUserData?.personalData?.dob || "");
+	const [gender, setGender] = useState(currentUserData?.personalData?.gender || "");
 
 	
 	useEffect(() => {

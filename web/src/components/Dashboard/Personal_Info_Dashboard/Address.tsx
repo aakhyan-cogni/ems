@@ -3,15 +3,18 @@ import OrganizationalInfo from "./OrganizationalInfo";
 import { StaticElement } from "three/examples/jsm/transpiler/AST.js";
 import { useLocalDB } from "../../../store";
 
+interface OrganizationalInfoProps {
+  registerSave: (callback: () => void) => void;
+}
 
-const Address = ({registerSave}) => {
+const Address: React.FC<OrganizationalInfoProps>  = ({registerSave}) => {
 	const [isUpdated, setUpdate] = useState(false);
 	const {saveAddress , user:currentUserData} = useLocalDB();
 	
-	const [country, setCountry] = useState(currentUserData?.personalData?.country);
-	const [state, setState] = useState(currentUserData?.personalData?.state);
-	const [city, setCity] = useState(currentUserData?.personalData?.city);
-	const [zip, setZip] = useState(currentUserData?.personalData?.zipcode);
+	const [country, setCountry] = useState(currentUserData?.personalData?.country|| "");
+	const [state, setState] = useState(currentUserData?.personalData?.state|| "");
+	const [city, setCity] = useState(currentUserData?.personalData?.city|| "");
+	const [zip, setZip] = useState(currentUserData?.personalData?.zipcode|| "");
 
 	useEffect(() => {
 	
