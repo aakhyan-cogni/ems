@@ -137,9 +137,13 @@ const EventCreationForm = () => {
 												value={formData.category}
 												onChange={handleChange}
 											>
-												<option>Workshop</option>
-												<option>Concert</option>
-												<option>Tech Talk</option>
+												<option value="Conference">Conference</option>
+												<option value="Workshop">Workshop</option>
+												<option value="Social">Social</option>
+												<option value="Entertainment">Entertainment</option>
+												<option value="Health & Wellness">Health & Wellness</option>
+												<option value="Education">Education</option>
+												<option value="Other">Other</option>
 											</select>
 										</div>
 										<div className="col-md-6 mb-3">
