@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import Female_1 from "../../../assets/Profile_Avatars/Female_1.jpeg";
 import Female_2 from "../../../assets/Profile_Avatars/Female_2.jpeg";
@@ -10,7 +10,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { useLocalDB } from "../../../store";
 import toast from "react-hot-toast";
 
-const BasicProfileInfo = () => {
+
+
+const BasicProfileInfo = ({registerSave}) => {
 	// const [section_icon, setSectionIcon] = useState("success");
 	// const [section, setSection] = useState("Basic Profile Info");
 	const [isUpdated, setUpdate] = useState(false);
@@ -18,13 +20,31 @@ const BasicProfileInfo = () => {
 	const { user, setUser } = useLocalDB();
 	const profileImg = user?.avatar ?? "Male_1";
 	const images = { Female_1, Female_2, Female_3, Male_1, Male_2, Male_3 };
+	const {saveBasicProfile , user:currentUserData} = useLocalDB();
 
-	const [fname, setFname] = useState("");
-	const [lname, setLname] = useState("");
-	const [email, setEmail] = useState("");
-	const [phone, setPhone] = useState("");
-	const [dob, setDob] = useState("");
-	const [gender, setGender] = useState("");
+	const [fname, setFname] = useState(currentUserData?.personalData?.firstName);
+	const [lname, setLname] = useState(currentUserData?.personalData?.lastName);
+	const [email, setEmail] = useState(currentUserData?.email);
+	const [phone, setPhone] = useState(currentUserData?.personalData?.phoneNumber);
+	const [dob, setDob] = useState(currentUserData?.personalData?.dob);
+	const [gender, setGender] = useState(currentUserData?.personalData?.gender);
+
+	
+	useEffect(() => {
+
+		const data ={
+			firstName:fname,
+			lastName:lname,
+			email,
+			phoneNumber:phone,
+			dob,
+			gender 
+		};
+		registerSave(() => {
+		saveBasicProfile(data);
+		});
+	}, [fname, lname,email, phone, dob,gender]);
+
 
 	function handleProfilePicChange(e: React.MouseEvent<HTMLImageElement>) {
 		e.preventDefault();
@@ -138,6 +158,8 @@ const BasicProfileInfo = () => {
 								type="text"
 								className="form-control"
 								placeholder="First Name"
+								// onFocus={(e)=>{e.target.value= currentUserData?.personalData?.firstName || ""}}
+								// value={currentUserData?.personalData?.firstName}
 							/>
 							{/* <div
                 hidden={!isUpdated}
@@ -167,7 +189,8 @@ const BasicProfileInfo = () => {
 								type="text"
 								className={`form-control `}
 								title={!isUpdated ? "" : "Don't forget to save"}
-								placeholder="Last Name"
+								// placeholder="Last Name"
+								// placeholder={currentUserData?.personalData?.lastName}
 							/>
 							{/* <div
                 hidden={!isUpdated}
@@ -208,7 +231,7 @@ const BasicProfileInfo = () => {
 								type="email"
 								className={`form-control `}
 								title={!isUpdated ? "" : "Don't forget to save"}
-								placeholder="Last Name"
+								placeholder="e.g. email@email.com"
 							/>
 							{/* <div
                 hidden={!isUpdated}
@@ -238,7 +261,7 @@ const BasicProfileInfo = () => {
 								type="tel"
 								className={`form-control `}
 								title={!isUpdated ? "" : "Don't forget to save"}
-								placeholder="Last Name"
+								placeholder="+91"
 							/>
 							{/* <div
                 hidden={isUpdated !== "phone"}
@@ -265,7 +288,6 @@ const BasicProfileInfo = () => {
 								type="date"
 								className={`form-control `}
 								title={!isUpdated ? "" : "Don't forget to save"}
-								placeholder="Last Name"
 							/>
 							{/* <div
                 hidden={!isUpdated}
