@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useLocalDB } from "../../../store";
 
-const OrganizationalInfo = ({registerSave}) => {
+
+interface OrganizationalInfoProps {
+  registerSave: (callback: () => void) => void;
+}
+
+const OrganizationalInfo: React.FC<OrganizationalInfoProps> = ({registerSave}) => {
 	const [isUpdated, setUpdate] = useState(false);
 	const {saveOrganizationalInfo , user:currentUserData} = useLocalDB();
 
-	const [org, setOrg] = useState(currentUserData?.personalData?.orgName);
-	const [role, setRole] = useState(currentUserData?.personalData?.role);
-    const [website, setWebsite] = useState(currentUserData?.personalData?.companyWebsite);
-	const [bio, setBio] = useState(currentUserData?.personalData?.bio);
+	const [org, setOrg] = useState(currentUserData?.personalData?.orgName|| "");
+	const [role, setRole] = useState(currentUserData?.personalData?.role|| "");
+    const [website, setWebsite] = useState(currentUserData?.personalData?.companyWebsite|| "");
+	const [bio, setBio] = useState(currentUserData?.personalData?.bio|| "");
 
 	useEffect(() => {
 		
