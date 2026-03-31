@@ -1,34 +1,29 @@
-import React, { useEffect, useState } from "react";
-import OrganizationalInfo from "./OrganizationalInfo";
-import { StaticElement } from "three/examples/jsm/transpiler/AST.js";
+import React, { useEffect, useReducer, useState } from "react";
 import { useLocalDB } from "../../../store";
 
 interface OrganizationalInfoProps {
-  registerSave: (callback: () => void) => void;
+	registerSave: (callback: () => void) => void;
 }
 
-const Address: React.FC<OrganizationalInfoProps>  = ({registerSave}) => {
+const Address: React.FC<OrganizationalInfoProps> = ({ registerSave }) => {
 	const [isUpdated, setUpdate] = useState(false);
-	const {saveAddress , user:currentUserData} = useLocalDB();
-	
-	const [country, setCountry] = useState(currentUserData?.personalData?.country|| "");
-	const [state, setState] = useState(currentUserData?.personalData?.state|| "");
-	const [city, setCity] = useState(currentUserData?.personalData?.city|| "");
-	const [zip, setZip] = useState(currentUserData?.personalData?.zipcode|| "");
+	const { user, setUser } = useLocalDB();
+	if (!user) return null;
+
+	const reducer = (state: typeof user, action: ReducerAction): typeof user => {
+		return {
+			...state,
+			[action.type]: String(action.value),
+		};
+	};
+
+	const [state, dispatch] = useReducer(reducer, user);
 
 	useEffect(() => {
-	
-			const data ={
-				country,
-				state,
-				city,
-				zipcode:zip
-			};
-			registerSave(() => {
-			saveAddress(data);
-			});
-		}, [country, state, city, zip]);
-	
+		registerSave(() => {
+			setUser((oldUser) => ({ ...oldUser, ...state }));
+		});
+	}, [state]);
 
 	return (
 		<div>
@@ -46,17 +41,13 @@ const Address: React.FC<OrganizationalInfoProps>  = ({registerSave}) => {
 						<div className="row g-3">
 							{/* Country */}
 							<div className="col-12 col-lg-6">
-								<label className="form-label">
-									Country <span className="text-danger">*</span>
-								</label>
+								<label className="form-label">Country</label>
 								<input
-									required
-									// onKeyUp={() => setUpdate(true)}
 									onChange={(e) => {
 										setUpdate(true);
-										setCountry(e.target.value);
+										dispatch({ type: "country", value: e.target.value });
 									}}
-									value={country}
+									value={state.country || ""}
 									type="text"
 									className="form-control"
 									placeholder="Country"
@@ -65,71 +56,54 @@ const Address: React.FC<OrganizationalInfoProps>  = ({registerSave}) => {
 
 							{/* State */}
 							<div className="col-12 col-lg-6">
-								<label className="form-label">
-									State <span className="text-danger">*</span>
-								</label>
+								<label className="form-label">State</label>
 								<input
-									required
-									// onKeyUp={() => setUpdate(true)}
 									onChange={(e) => {
 										setUpdate(true);
-										setState(e.target.value);
+										dispatch({ type: "state", value: e.target.value });
 									}}
-									value={state}
+									value={state.state || ""}
 									type="text"
 									className="form-control"
 									placeholder="State"
 								/>
 							</div>
 
-							{/* City */}
 							<div className="col-12 col-lg-6">
-								<label className="form-label">
-									City <span className="text-danger">*</span>
-								</label>
+								<label className="form-label">City</label>
 								<input
-									required
-									// onKeyUp={() => setUpdate(true)}
 									onChange={(e) => {
 										setUpdate(true);
-										setCity(e.target.value);
+										dispatch({ type: "city", value: e.target.value });
 									}}
-									value={city}
+									value={state.city || ""}
 									type="text"
 									className="form-control"
 									placeholder="City"
 								/>
 							</div>
 
-							{/* Zipcode */}
 							<div className="col-12 col-lg-6">
-								<label className="form-label">
-									Zipcode <span className="text-danger">*</span>
-								</label>
+								<label className="form-label">Zipcode</label>
 								<input
-									required
-									// onKeyUp={() => setUpdate(true)}
 									onChange={(e) => {
 										setUpdate(true);
-										setZip(e.target.value);
+										dispatch({ type: "zipcode", value: e.target.value });
 									}}
-									value={zip}
+									value={state.zipcode || ""}
 									type="number"
 									className="form-control"
 									placeholder="Zipcode"
 								/>
 							</div>
 
-							{/* Full Address */}
 							<div className="col-12">
 								<label className="form-label">Address</label>
 								<textarea
 									rows={3}
-									value={
-										city && state && country && zip
-											? city.trim() + ", " + state.trim() + ", " + country.trim() + " - " + zip.trim()
-											: ""
-									}
+									value={[state.city, state.state, state.country, state.zipcode]
+										.filter(Boolean)
+										.join(", ")}
 									className="form-control"
 									disabled
 								/>
@@ -138,7 +112,6 @@ const Address: React.FC<OrganizationalInfoProps>  = ({registerSave}) => {
 					</form>
 				</div>
 			</div>
-			{/* <OrganizationalInfo /> */}
 			<div hidden={!isUpdated} className="col-6 alert alert-warning" role="alert">
 				⚠️ Don't forget to save
 			</div>
@@ -147,3 +120,10 @@ const Address: React.FC<OrganizationalInfoProps>  = ({registerSave}) => {
 };
 
 export default Address;
+
+type ActionItemType = "country" | "state" | "zipcode" | "city";
+
+interface ReducerAction {
+	type: ActionItemType;
+	value: unknown;
+}

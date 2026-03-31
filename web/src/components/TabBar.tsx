@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import ThemeSwitch from "./ThemeSwitch";
 import BasicProfileInfo from "./Dashboard/Personal_Info_Dashboard/BasicProfileInfo";
 import Address from "./Dashboard/Personal_Info_Dashboard/Address";
 import OrganizationalInfo from "./Dashboard/Personal_Info_Dashboard/OrganizationalInfo";
