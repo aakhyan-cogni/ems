@@ -10,7 +10,7 @@ import { useNavigate } from "react-router";
 
 export default function ProfileLayout() {
 	const [active, setActive] = useState("dashboard");
-	const { setUser } = useLocalDB();
+	const setUser = useLocalDB((s) => s.setUser);
 	const navigate = useNavigate();
 	const [hover, setHover] = useState("");
 	const [isLogoutHovered, setIsLogoutHovered] = useState(false);
@@ -228,10 +228,13 @@ export default function ProfileLayout() {
 // }
 
 export function PersonalContent() {
-
 	const saveHandlerRef = React.useRef<(() => void) | null>(null);
 
-	const contents = [<BasicProfileInfo registerSave={(fn:(() => void) | null) => (saveHandlerRef.current = fn)}/>, <Address registerSave={(fn:(() => void) | null) => (saveHandlerRef.current = fn)}/>, <OrganizationalInfo registerSave={(fn:(() => void) | null) => (saveHandlerRef.current = fn)}/>];
+	const contents = [
+		<BasicProfileInfo registerSave={(fn: (() => void) | null) => (saveHandlerRef.current = fn)} />,
+		<Address registerSave={(fn: (() => void) | null) => (saveHandlerRef.current = fn)} />,
+		<OrganizationalInfo registerSave={(fn: (() => void) | null) => (saveHandlerRef.current = fn)} />,
+	];
 
 	const [step, setStep] = useState(0);
 
@@ -282,12 +285,9 @@ function DashboardContent() {
 }
 
 function PaymentContent() {
-
 	const [step, setStep] = useState(0);
 
-
-	const contents = [<SavedPaymentMethods/>, <TransactionHistory />, <SubscriptionPlans />];
-
+	const contents = [<SavedPaymentMethods />, <TransactionHistory />, <SubscriptionPlans />];
 
 	const content = contents[step];
 

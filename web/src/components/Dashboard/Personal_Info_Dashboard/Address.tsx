@@ -7,7 +7,8 @@ interface OrganizationalInfoProps {
 
 const Address: React.FC<OrganizationalInfoProps> = ({ registerSave }) => {
 	const [isUpdated, setUpdate] = useState(false);
-	const { user, setUser } = useLocalDB();
+	const user = useLocalDB((s) => s.user);
+	const setUser = useLocalDB((s) => s.setUser);
 	if (!user) return null;
 
 	const reducer = (state: typeof user, action: ReducerAction): typeof user => {

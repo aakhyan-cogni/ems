@@ -3,8 +3,12 @@ import SplitText from "./components/special/SplitText";
 import { motion } from "motion/react";
 import Lottie from "lottie-react";
 import calendar from "./assets/calendar.json";
+import { useLocalDB } from "./store";
+import { useNavigate } from "react-router";
 
 export default function App() {
+	const user = useLocalDB((s) => s.user);
+	const navigate = useNavigate();
 	return (
 		<div className="container position-relative w-100 h-100 d-flex flex-column align-items-center justify-content-center">
 			<div className="container d-flex flex-column flex-md-row z-1 p-2" style={{ backdropFilter: "blur(2px)" }}>
@@ -35,7 +39,13 @@ export default function App() {
 							text="EMS simplifies event planning with end to end management. We take care of every detail from venues to logistics ensuring your event runs smoothly and leaves a lasting impact."
 						/>
 					</small>
-					<motion.button whileTap={{ scale: 0.98 }} className="fs-md-4 btn btn-primary rounded-pill">
+					<motion.button
+						whileTap={{ scale: 0.98 }}
+						onClick={() => {
+							user ? navigate("/create") : navigate("/login");
+						}}
+						className="fs-md-4 btn btn-primary rounded-pill"
+					>
 						Create your First Event
 					</motion.button>
 				</div>

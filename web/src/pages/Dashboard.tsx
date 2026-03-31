@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 const Dashboard = () => {
 	const navigate = useNavigate();
-	const { user } = useLocalDB();
+	const user = useLocalDB((s) => s.user);
 
 	useEffect(() => {
 		if (user === null) navigate("/login");

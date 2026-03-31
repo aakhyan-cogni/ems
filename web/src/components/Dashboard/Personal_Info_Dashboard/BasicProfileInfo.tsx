@@ -17,7 +17,8 @@ interface OrganizationalInfoProps {
 const BasicProfileInfo: React.FC<OrganizationalInfoProps> = ({ registerSave }) => {
 	const [isUpdated, setUpdate] = useState(false);
 	const [showModal, setShowModal] = useState(false);
-	const { user, setUser } = useLocalDB();
+	const user = useLocalDB((s) => s.user);
+	const setUser = useLocalDB((s) => s.setUser);
 	if (!user) return null;
 	const profileImg = user?.avatar ?? "Male_1";
 	const images = { Female_1, Female_2, Female_3, Male_1, Male_2, Male_3 };
