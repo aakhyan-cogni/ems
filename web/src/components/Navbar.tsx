@@ -54,6 +54,11 @@ export default function Navbar() {
 								</NavLink>
 							</li>
 						)}
+						<li className="nav-item">
+							<NavLink className="nav-link" to="/support">
+								Support
+							</NavLink>
+						</li>
 					</ul>
 				</div>
 			</div>
