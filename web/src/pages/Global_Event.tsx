@@ -95,7 +95,6 @@ export default function GlobalEventPage() {
                 <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="row g-4">
                     {sortedAndFilteredEvents.map((event) => (
                         <motion.div key={event.id} layout variants={fadeInUp} className="col-12 col-md-6 col-lg-4">
-                            {/* Navigation via search params */}
                             <EventCard event={event} onClick={() => navigate(`?q=${event.id}`)} />
                         </motion.div>
                     ))}
