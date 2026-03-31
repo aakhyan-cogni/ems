@@ -17,7 +17,7 @@ import Pricing from "./pages/Pricing.tsx";
 
 createRoot(document.getElementById("root")!).render(
 	<BrowserRouter>
-		<main className="min-vh-100 min-vw-100 d-flex flex-column justify-content-between">
+		<main className="min-vh-100 min-vw-auto d-flex flex-column justify-content-between">
 			<Antigravity
 				count={200}
 				magnetRadius={6}

@@ -12,7 +12,9 @@ const fadeInUp = {
 export default function Login() {
 	const [login, setLogin] = useState<boolean>(true);
 	const navigate = useNavigate();
-	const { users, setUser, addUser } = useLocalDB();
+	const users = useLocalDB((s) => s.users);
+	const setUser = useLocalDB((s) => s.setUser);
+	const addUser = useLocalDB((s) => s.addUser);
 
 	const toggleMode = () => setLogin(!login);
 

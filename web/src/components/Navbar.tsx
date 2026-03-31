@@ -5,7 +5,8 @@ import { Avatar } from "./Avatar";
 import { Popover, OverlayTrigger } from "react-bootstrap";
 
 export default function Navbar() {
-	const { user, setUser } = useLocalDB();
+	const user = useLocalDB((s) => s.user);
+	const setUser = useLocalDB((s) => s.setUser);
 	const navigate = useNavigate();
 
 	return (
