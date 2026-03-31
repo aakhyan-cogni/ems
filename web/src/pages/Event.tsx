@@ -28,39 +28,43 @@ export default function Events() {
             }
         };
         loadEvent();
-        // Ensure page starts at the top when viewing an event
         window.scrollTo(0, 0);
     }, [eventId]);
 
     const handleBack = () => {
-        // Explicitly clear the 'q' parameter to return to the list view
         const newParams = new URLSearchParams(searchParams);
         newParams.delete("q");
         setSearchParams(newParams);
-        // Fallback if search params aren't driving the view logic in App.tsx
-        navigate('/events');
+        navigate('/events'); 
     };
 
     if (!eventId) return null;
 
     return (
         <motion.div 
-            initial={{ opacity: 0, y: 10 }} 
+            initial={{ opacity: 0, y: 0 }} 
             animate={{ opacity: 1, y: 0 }} 
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className="min-vh-100 bg-body py-4"
+            transition={{ duration: 0.3 }}
+            /* Tight top padding to match your successful layout */
+            className="bg-body pt-0 pb-5 d-flex flex-column" 
         >
             <div className="container">
-                {/* Positioned at the very top of the container */}
-                <button 
-                    onClick={handleBack} 
-                    className="btn btn-link text-decoration-none text-primary fw-bold p-0 mb-4 d-flex align-items-center"
-                >
-                   <span className="me-2" style={{ fontSize: '1.2rem' }}>←</span> 
-                   Back to All Events
-                </button>
+                <div className="py-2"> 
+                    <button 
+                        onClick={handleBack} 
+                        className="btn btn-link text-decoration-none text-primary fw-bold p-0 d-flex align-items-center"
+                        style={{ fontSize: '0.85rem', transition: 'transform 0.2s' }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(-4px)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
+                    >
+                       <span className="me-2" style={{ fontSize: '1.5rem' }}>←</span> 
+                       Back to All Events
+                    </button>
+                </div>
                 
+                <hr className="opacity-10 mt-1 mb-4" /> 
+
                 {loading ? (
                     <div className="text-center p-5 mt-5">
                         <div className="spinner-border text-primary"></div>
@@ -68,7 +72,7 @@ export default function Events() {
                 ) : event ? (
                     <SingleEvent event={event} onClose={handleBack} />
                 ) : (
-                    <div className="text-center mt-5">Event not found.</div>
+                    <div className="text-center mt-5 text-muted">Event not found.</div>
                 )}
             </div>
         </motion.div>

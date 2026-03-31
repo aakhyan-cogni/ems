@@ -42,7 +42,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
     const diff = eventTime - now;
 
     if (isPast) {
-      return <span className="badge bg-secondary px-3 py-2 opacity-75">Past Event</span>;
+      return <span className="badge bg-secondary-subtle text-secondary px-3 py-2">Past Event</span>;
     }
 
     if (diff < 1800000 && diff > -3600000) {
@@ -77,14 +77,15 @@ export function EventCard({ event, onClick }: EventCardProps) {
       variants={fadeInUp}
       initial="hidden"
       animate="visible"
-      whileHover={!isPast ? { y: -10, boxShadow: "0 20px 40px rgba(0,0,0,0.4)" } : {}}
+      whileHover={!isPast ? { y: -10, boxShadow: "0 15px 30px rgba(0,0,0,0.12)" } : {}}
       onClick={() => onClick(event)}
-      className={`card h-100 border-0 overflow-hidden ${isPast ? "opacity-60 grayscale" : ""}`}
+      
+      className={`card h-100 border-0 shadow-sm overflow-hidden rounded-4 bg-body-tertiary ${isPast ? "opacity-60 grayscale" : ""}`}
       style={{
         transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
         cursor: "pointer",
-        background: "#1e293b",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
+      
+        border: "1px solid var(--bs-border-color-translucent)",
       }}
     >
       <div className="position-relative">
@@ -98,16 +99,17 @@ export function EventCard({ event, onClick }: EventCardProps) {
           {getStatusBadge()}
         </div>
         <div className="position-absolute top-0 end-0 m-3">
-          <span className="badge bg-dark bg-opacity-75 text-white border border-secondary shadow-sm">
+          <span className="badge bg-dark bg-opacity-75 text-white border border-white border-opacity-10 shadow-sm">
             {event.category}
           </span>
         </div>
       </div>
 
-      <div className="card-body p-4 text-white">
+      <div className="card-body p-4">
         <div className="d-flex justify-content-between align-items-start mb-2">
+          
           <h5
-            className={`fw-bold mb-0 text-truncate text-white ${isPast ? "opacity-50" : ""}`}
+            className={`fw-bold mb-0 text-truncate text-body ${isPast ? "opacity-50" : ""}`}
             style={{ maxWidth: "70%" }}
           >
             {event.title}
@@ -118,7 +120,8 @@ export function EventCard({ event, onClick }: EventCardProps) {
         </div>
 
         <div className="d-flex align-items-center gap-2 mb-2">
-          <p className="text-white-50 small mb-0">📍 {event.location}</p>
+          {/* text-body-secondary: turns gray in light mode, lighter gray in dark mode */}
+          <p className="text-body-secondary small mb-0">📍 {event.location}</p>
           {event.avgRating && (
             <span className="ms-auto small fw-bold text-warning">
               ⭐ {event.avgRating}
@@ -126,7 +129,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
           )}
         </div>
 
-        <p className="card-text text-white-50 mb-3 line-clamp-2 small" style={{ opacity: 0.9 }}>
+        <p className="card-text text-body-secondary mb-3 line-clamp-2 small">
           {event.description}
         </p>
 
@@ -134,21 +137,22 @@ export function EventCard({ event, onClick }: EventCardProps) {
           {event.tags?.split(",").slice(0, 3).map((tag, i) => (
             <span
               key={i}
-              className="badge bg-white bg-opacity-10 text-white border border-white border-opacity-25 small fw-normal"
+              className="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle small fw-normal"
             >
               {tag.trim()}
             </span>
           ))}
         </div>
 
-        <div className="pt-3 border-top border-white border-opacity-10 d-flex justify-content-between align-items-center">
+        {/* border-color-translucent for theme-aware divider */}
+        <div className="pt-3 border-top border-secondary border-opacity-10 d-flex justify-content-between align-items-center">
           <small
-            className={isPast ? "text-white-50" : ""}
-            style={{ color: isPast ? "" : "#7dd3fc" }}
+            className="text-body-secondary"
+            style={{ color: isPast ? "" : "var(--bs-primary)" }}
           >
             {isPast ? `✅ ${event.attendees || 0} Attended` : `👤 ${event.attendees || 0} Attending`}
           </small>
-          <small className="fw-bold" style={{ color: "#60a5fa" }}>
+          <small className="fw-bold text-primary">
             {isPast ? "View Highlights →" : "View Details →"}
           </small>
         </div>
