@@ -102,8 +102,8 @@ export const useLocalDB = create<State>()(
 					personalData:{...state.user?.personalData,
 						orgName:(data.orgName)?data.orgName:state.user?.personalData?.orgName,
 						role:(data.role)?data.role:state.user?.personalData?.role,
-						companyWebsite:(data.companyWebsite)?data.city:state.user?.personalData?.companyWebsite,
-						bio:(data.bio)?data.zipcode:state.user?.personalData?.bio,
+						companyWebsite:(data.companyWebsite)?data.companyWebsite:state.user?.personalData?.companyWebsite,
+						bio:(data.bio)?data.bio:state.user?.personalData?.bio,
 					}
 				}
 			}))

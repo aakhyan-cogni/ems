@@ -15,7 +15,7 @@ const OrganizationalInfo = ({registerSave}) => {
 				const data ={
 					orgName:org,
 					role,
-					websiteCompany:website,
+					companyWebsite:website,
 					bio
 				};
 				registerSave(() => {
