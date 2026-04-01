@@ -16,7 +16,17 @@ interface Props {
 }
 
 const NotificationComponent: React.FC<Props> = ({ details, onMarkRead, deleteNotification }) => {
-	const date = new Date(details.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+	const date = new Date(details.time)
+		.toLocaleString("en-GB", {
+			day: "2-digit",
+			month: "2-digit",
+			year: "numeric",
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: true,
+		})
+		.replace(/\//g, "-")
+		.replace(",", "");
 
 	return (
 		<div className={`card mb-3 border-0 shadow-sm ${details.isRead ? "opacity-75" : ""}`}>

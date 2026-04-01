@@ -171,10 +171,7 @@ export default function Login() {
 					</div>
 				</div>
 
-				{/* Footer attribution matching App.tsx */}
-				<footer className="mt-4 text-center text-muted small opacity-50">
-					&copy; 2026 EMS. Built in Cognizant.
-				</footer>
+
 			</motion.div>
 		</div>
 	);
