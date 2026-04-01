@@ -14,6 +14,7 @@ import { Toaster } from "react-hot-toast";
 import Dashboard from "./pages/Dashboard.tsx";
 import Pricing from "./pages/Pricing.tsx";
 import SupportPage from "./pages/SupportPage.tsx";
+import NotificationPage from "./pages/NotificationPage.tsx";
 
 createRoot(document.getElementById("root")!).render(
 	<BrowserRouter>
@@ -44,9 +45,10 @@ createRoot(document.getElementById("root")!).render(
 				<Route path="/create" element={<EventCreationForm />} />
 				<Route path="/pricing" element={<Pricing />} />
 				<Route path="/support" element={<SupportPage />} />
+				<Route path="/notifications" element={<NotificationPage />} />
 			</Routes>
 			<Footer />
-			<Toaster position="bottom-center"/>
+			<Toaster position="bottom-center" />
 		</main>
 	</BrowserRouter>,
 );
