@@ -2,6 +2,7 @@ import { Link, NavLink, useNavigate } from "react-router";
 import ThemeSwitch from "./ThemeSwitch";
 import { useLocalDB } from "../store";
 import { Avatar } from "./Avatar";
+import { Bell } from "lucide-react";
 import { Popover, OverlayTrigger } from "react-bootstrap";
 
 export default function Navbar() {
@@ -65,42 +66,47 @@ export default function Navbar() {
 			<div className="d-flex align-items-center gap-3 me-5">
 				<ThemeSwitch />
 				{user ? (
-					<div style={{ width: "2rem", cursor: "pointer" }}>
-						<OverlayTrigger
-							trigger="click"
-							placement="bottom"
-							rootClose
-							overlay={
-								<Popover id="user-popover" className="shadow border-0">
-									<Popover.Header as="h3" className="text-white border-0">
-										Hi, {user.name.split(" ")[0]}!
-									</Popover.Header>
-									<Popover.Body className="p-0">
-										<div className="list-group list-group-flush">
-											<Link
-												to="/dashboard"
-												className="list-group-item list-group-item-action border-0"
-											>
-												My Dashboard
-											</Link>
-											<button
-												onClick={() => {
-													setUser(null);
-													navigate("/");
-												}}
-												className="list-group-item list-group-item-action text-danger border-0"
-											>
-												Logout
-											</button>
-										</div>
-									</Popover.Body>
-								</Popover>
-							}
-						>
-							<div>
-								<Avatar user={user} />
-							</div>
-						</OverlayTrigger>
+					<div className="d-flex align-items-center gap-2">
+						<Link to="/notifications">
+							<Bell size={24} />
+						</Link>
+						<div style={{ width: "2rem", cursor: "pointer" }}>
+							<OverlayTrigger
+								trigger="click"
+								placement="bottom"
+								rootClose
+								overlay={
+									<Popover id="user-popover" className="shadow border-0">
+										<Popover.Header as="h3" className="text-white border-0">
+											Hi, {user.name.split(" ")[0]}!
+										</Popover.Header>
+										<Popover.Body className="p-0">
+											<div className="list-group list-group-flush">
+												<Link
+													to="/dashboard"
+													className="list-group-item list-group-item-action border-0"
+												>
+													My Dashboard
+												</Link>
+												<button
+													onClick={() => {
+														setUser(null);
+														navigate("/");
+													}}
+													className="list-group-item list-group-item-action text-danger border-0"
+												>
+													Logout
+												</button>
+											</div>
+										</Popover.Body>
+									</Popover>
+								}
+							>
+								<div>
+									<Avatar user={user} />
+								</div>
+							</OverlayTrigger>
+						</div>
 					</div>
 				) : (
 					<Link to="/login" className="btn btn-primary rounded-pill px-4 w-100 w-lg-auto shadow-sm">
