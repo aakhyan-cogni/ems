@@ -16,17 +16,9 @@ export default function ProfileLayout() {
 	const [hover, setHover] = useState("");
 	const [isLogoutHovered, setIsLogoutHovered] = useState(false);
 
-	//   const NavButton = ({ id, label, icon }) => (
-	//     <button
-	//       type="button"
-	//       className={`nav-link text-start px-3 py-2 ${active === id ? "active" : ""}`}
-	//       onClick={() => setActive(id)}
-	//       aria-current={active === id ? "page" : undefined}
-	//     >
-	//       {icon ? <span className="me-2">{icon}</span> : null}
-	//       {label}
-	//     </button>
-	//   );
+	const user = useLocalDB((s) => s.user)!;
+	const now = new Date().getHours();
+	const greeting = now > 5 && now < 12 ? "morning" : now < 17 ? "afternoon" : "evening";
 
 	return (
 		<div className="container-fluid" style={{ overflow: "hidden", height: "100%", width: "100%" }}>
@@ -34,8 +26,8 @@ export default function ProfileLayout() {
 				<aside className={`sidebar col-12 col-md-3 col-lg-2 border-end bg-body-tertiary px-0 `}>
 					<div className={`d-flex flex-column h-lg-100`}>
 						<div className="p-3 border-bottom">
-							<h6 className="mb-0">My Account</h6>
-							<small className="text-muted">Navigation</small>
+							<h6 className="mb-0">Hello {user.name.split(" ")[0]}</h6>
+							<small className="text-muted">Good {greeting}</small>
 						</div>
 
 						<nav className="nav nav-pills flex-wrap flex-lg-column py-2">
