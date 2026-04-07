@@ -14,7 +14,7 @@ export function PricingCard(props: PricingCardProps) {
 				</h2>
 				<p className="card-text text-muted text-center">{description}</p>
 
-				<ul className="list-unstyled my-4 flex-grow-1">
+				<ul className="list-group-item ms-4 my-4 flex-grow-1">
 					{features.map((feature, index) => (
 						<li key={index} className="mb-2">
 							<i className="bi bi-check2 text-success me-2"></i> {feature}
