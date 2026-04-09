@@ -1,10 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-export default function ThemeSwitch() {
-	const [isDark, setIsDark] = useState(() => {
-		return localStorage.getItem("theme") === "dark";
-	});
-
+export default function ThemeSwitch({ isDark, setIsDark }: ThemeSwitchProps) {
 	useEffect(() => {
 		const theme = isDark ? "dark" : "light";
 		document.documentElement.setAttribute("data-bs-theme", theme);
@@ -31,4 +27,9 @@ export default function ThemeSwitch() {
 			</label>
 		</div>
 	);
+}
+
+interface ThemeSwitchProps {
+	isDark: boolean;
+	setIsDark: React.Dispatch<React.SetStateAction<boolean>>
 }

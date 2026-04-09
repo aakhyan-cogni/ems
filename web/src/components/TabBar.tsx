@@ -37,7 +37,7 @@ export default function ProfileLayout() {
 									className={`btn outline-none decoration m-1 mb-0 ms-2 text-start px-3 pt-2 border-none `}
 									onClick={() => setActive("dashboard")}
 									aria-current={active === "dashboard" ? "page" : undefined}
-									onMouseOver={() => setHover("dashboard")}
+									onMouseOver={() => setHover("dashboard")} 
 									onMouseOut={() => setHover("")}
 								>
 									<span className="me-2">{"🗓️"}</span>
@@ -170,7 +170,6 @@ export default function ProfileLayout() {
 							{active === "dashboard" && <Dashboard />}
 							{active === "personal" && <PersonalContent />}
 							{active === "payment" && <PaymentContent />}
-							{active === "settings" && <SettingsContent />}
 						</div>
 					</div>
 				</main>
@@ -318,8 +317,4 @@ function PaymentContent() {
 			</div>
 		</div>
 	);
-}
-
-function SettingsContent() {
-	return <>Settings</>;
 }

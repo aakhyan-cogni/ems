@@ -4,17 +4,28 @@ import { useLocalDB } from "../store";
 import { Avatar } from "./Avatar";
 import { Bell } from "lucide-react";
 import { Popover, OverlayTrigger } from "react-bootstrap";
+import EMS_LOGO_LIGHT from "../assets/EMS_LOGO_LIGHT.png";
+import EMS_LOGO_DARK from "../assets/EMS_LOGO_DARK.png";
+import { useState } from "react";
 
 export default function Navbar() {
 	const user = useLocalDB((s) => s.user);
 	const setUser = useLocalDB((s) => s.setUser);
 	const navigate = useNavigate();
+	const [isDark, setIsDark] = useState(() => {
+		return localStorage.getItem("theme") === "dark";
+	});
 
 	return (
 		<nav className="navbar navbar-expand-lg border-bottom sticky-top bg-body-tertiary flex-nowrap">
 			<div className="container gap-md-2">
 				<Link className="navbar-brand fw-bold text-primary m-0 mx-md-5" to="/">
-					EMS
+					{/* EMS */}
+					<img
+						src={isDark ? EMS_LOGO_DARK : EMS_LOGO_LIGHT}
+						alt="EMS"
+						style={{ width: "50px", height: "50px" }}
+					/>
 				</Link>
 
 				<button
@@ -64,7 +75,7 @@ export default function Navbar() {
 				</div>
 			</div>
 			<div className="d-flex align-items-center gap-3 me-5">
-				<ThemeSwitch />
+				<ThemeSwitch isDark={isDark} setIsDark={setIsDark} />
 				{user ? (
 					<div className="d-flex align-items-center gap-2">
 						<Link to="/notifications">
