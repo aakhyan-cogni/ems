@@ -53,17 +53,7 @@ export default function Dashboard() {
 					{otherEvents.length > 0 ? (
 						otherEvents.map((event) => (
 							<div key={event.id} className="col-md-6 col-lg-4">
-								<EventCard
-									event={
-										{
-											...event,
-											eventDateTime: event.date,
-											image: "https://images.unsplash.com/photo-1540575861501-7ad0582373f2?auto=format&fit=crop&q=80&w=1000",
-											currency: "INR",
-										} as any
-									}
-									onClick={handleEventClick}
-								/>
+								<EventCard event={event} onClick={handleEventClick} />
 							</div>
 						))
 					) : (
