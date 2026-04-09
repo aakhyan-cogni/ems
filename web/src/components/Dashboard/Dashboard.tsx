@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { useLocalDB } from "../../store";
+import { useLocalDB, type Event } from "../../store";
 import { EventCard } from "../EventCard";
 import { motion } from "motion/react";
 
@@ -11,7 +11,7 @@ export default function Dashboard() {
 	const myEvents = events.filter((e) => e.organizerEmail === user.email);
 	const otherEvents = events.filter((e) => e.organizerEmail !== user.email);
 
-	const handleEventClick = (event: any) => {
+	const handleEventClick = (event: Event) => {
 		navigate(`/events?q=${event.id}`);
 	};
 
@@ -34,20 +34,7 @@ export default function Dashboard() {
 					<div className="row g-4">
 						{myEvents.map((event) => (
 							<div key={event.id} className="col-md-6 col-lg-4">
-								<EventCard
-									event={
-										{
-											...event,
-											description: event.description.substring(0, 50) + "...",
-											longDescription: event.description,
-											eventDateTime: event.date,
-											image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=1000", // Default placeholder
-											currency: "INR",
-											attendees: 0,
-										} as any
-									}
-									onClick={handleEventClick}
-								/>
+								<EventCard event={event} onClick={handleEventClick} />
 							</div>
 						))}
 					</div>
