@@ -7,19 +7,30 @@
 	"type": "module",
 	"main": "src/index.ts",
 	"scripts": {
+		"db:up": "mongod --port 27018 --dbpath \"./mongo-data\" --replSet rs0",
 		"dev": "tsup --watch --onSuccess \"node --no-warnings dist/index.js\"",
 		"build": "tsup",
-		"start": "node dist/index.js"
+		"start": "node dist/index.js",
+		"postinstall": "prisma generate"
 	},
 	"dependencies": {
+		"@prisma/client": "^6.19.3",
+		"bcryptjs": "^3.0.3",
+		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.6",
-		"express": "^5.2.1"
+		"express": "^5.2.1",
+		"jsonwebtoken": "^9.0.3",
+		"multer": "^2.1.1"
 	},
 	"devDependencies": {
+		"@types/cookie-parser": "^1.4.10",
 		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.6",
-		"@types/node": "^25.4.0",
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/multer": "^2.1.0",
+		"@types/node": "^25.6.0",
 		"nodemon": "^3.1.14",
+		"prisma": "6.19",
 		"ts-node": "^10.9.2",
 		"tsup": "^8.5.1",
 		"typescript": "^5.9.3"

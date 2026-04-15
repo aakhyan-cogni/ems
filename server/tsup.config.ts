@@ -9,4 +9,6 @@ export default defineConfig({
 	clean: true, // Cleans dist folder before every build
 	minify: false, // Keep it readable for dev
 	target: "esnext",
+	shims: true,
+	skipNodeModulesBundle: true,
 });
