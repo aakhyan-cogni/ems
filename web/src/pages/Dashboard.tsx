@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router";
 import TabBar from "../components/TabBar";
-import { useLocalDB } from "../store";
 import { useEffect } from "react";
+import { useAuthStore } from "../store/useAuthStore";
 
 const Dashboard = () => {
 	const navigate = useNavigate();
-	const user = useLocalDB((s) => s.user);
+	const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
 	useEffect(() => {
-		if (user === null) navigate("/login");
+		if (!isAuthenticated) navigate("/login");
 	}, []);
 
 	return (

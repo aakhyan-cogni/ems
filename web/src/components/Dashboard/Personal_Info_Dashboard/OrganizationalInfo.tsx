@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState } from "react";
-import { useLocalDB } from "../../../store";
+import { useAuthStore } from "../../../store/useAuthStore";
 
 interface OrganizationalInfoProps {
 	registerSave: (callback: () => void) => void;
@@ -7,8 +7,8 @@ interface OrganizationalInfoProps {
 
 const OrganizationalInfo: React.FC<OrganizationalInfoProps> = ({ registerSave }) => {
 	const [isUpdated, setUpdate] = useState(false);
-	const user = useLocalDB((s) => s.user);
-	const setUser = useLocalDB((s) => s.setUser);
+	const user = useAuthStore((s) => s.user);
+	const syncUser = useAuthStore((s) => s.syncUser);
 	if (!user) return null;
 
 	const reducer = (state: typeof user, action: ReducerAction): typeof user => {
@@ -23,7 +23,14 @@ const OrganizationalInfo: React.FC<OrganizationalInfoProps> = ({ registerSave })
 	useEffect(() => {
 		// Updating cached function
 		registerSave(() => {
-			setUser((oldUser) => ({ ...oldUser, ...state }));
+			if (!isUpdated) return;
+			syncUser({
+				orgName: state.orgName,
+				designation: state.designation,
+				companyWebsite: state.companyWebsite,
+				bio: state.bio,
+			});
+			setUpdate(false);
 		});
 	}, [state]);
 
@@ -58,9 +65,9 @@ const OrganizationalInfo: React.FC<OrganizationalInfoProps> = ({ registerSave })
 							<input
 								onChange={(e) => {
 									setUpdate(true);
-									dispatch({ type: "role", value: e.target.value });
+									dispatch({ type: "designation", value: e.target.value });
 								}}
-								value={state.role || ""}
+								value={state.designation || ""}
 								type="text"
 								className="form-control"
 								placeholder="Role"
@@ -107,7 +114,7 @@ const OrganizationalInfo: React.FC<OrganizationalInfoProps> = ({ registerSave })
 
 export default OrganizationalInfo;
 
-type ActionItemType = "bio" | "role" | "orgName" | "companyWebsite";
+type ActionItemType = "bio" | "designation" | "orgName" | "companyWebsite";
 
 interface ReducerAction {
 	type: ActionItemType;

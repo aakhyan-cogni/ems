@@ -2,9 +2,10 @@ import { useNavigate } from "react-router";
 import { useLocalDB, type Event } from "../../store";
 import { EventCard } from "../EventCard";
 import { motion } from "motion/react";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export default function Dashboard() {
-	const user = useLocalDB((s) => s.user)!;
+	const user = useAuthStore((s) => s.user)!;
 	const events = useLocalDB((s) => s.events);
 	const navigate = useNavigate();
 

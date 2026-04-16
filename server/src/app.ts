@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { authRouter, eventRouter } from "@/routes";
+import { authRouter, eventRouter, userRouter } from "@/routes";
 
 const app = express();
 
@@ -15,9 +15,17 @@ app.use(
 	}),
 );
 app.use(express.json());
+app.use(express.static("public"));
 
 // Routes
 app.use("/api/events", eventRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
+
+// Global error handler
+app.use((err: any, req: express.Request, res: express.Response) => {
+	console.error("Global error handler:", err);
+	res.status(500).json({ message: "Internal server error" });
+});
 
 export default app;

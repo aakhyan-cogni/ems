@@ -3,11 +3,11 @@ import SplitText from "./components/special/SplitText";
 import { motion } from "motion/react";
 import Lottie from "lottie-react";
 import calendar from "./assets/calendar.json";
-import { useLocalDB } from "./store";
 import { useNavigate } from "react-router";
+import { useAuthStore } from "./store/useAuthStore";
 
 export default function App() {
-	const user = useLocalDB((s) => s.user);
+	const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 	const navigate = useNavigate();
 	return (
 		<div className="container position-relative w-100 h-100 d-flex flex-column align-items-center justify-content-center">
@@ -42,7 +42,7 @@ export default function App() {
 					<motion.button
 						whileTap={{ scale: 0.98 }}
 						onClick={() => {
-							user ? navigate("/create") : navigate("/login");
+							isAuthenticated ? navigate("/create") : navigate("/login");
 						}}
 						className="fs-md-4 btn btn-primary rounded-pill"
 					>

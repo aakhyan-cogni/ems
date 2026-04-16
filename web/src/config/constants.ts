@@ -38,3 +38,13 @@ export const PricingDetails: Record<string, PricingCardProps> = {
 		popular: false,
 	},
 };
+
+export const AVATARS = [
+	"default.png",
+	"Male_1.jpeg",
+	"Female_1.jpeg",
+	"Male_2.jpeg",
+	"Female_2.jpeg",
+	"Male_3.jpg",
+	"Female_3.jpeg",
+];

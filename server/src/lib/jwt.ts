@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { assert } from "node:console";
 
@@ -63,7 +64,7 @@ export const verifyRefreshToken = (token: string): TokenPayload => {
  * @param user User object containing id, email, and optional role
  * @returns An object containing both accessToken and refreshToken
  */
-export const generateTokens = (user: { id: string; email: string; role?: string | null }) => {
+export const generateTokens = (user: BasicUser & Partial<User>) => {
 	const payload: TokenPayload = {
 		userId: user.id,
 		email: user.email,
@@ -75,3 +76,9 @@ export const generateTokens = (user: { id: string; email: string; role?: string 
 		refreshToken: generateRefreshToken(payload),
 	};
 };
+
+interface BasicUser {
+	id: string;
+	email: string;
+	role?: string | null;
+}

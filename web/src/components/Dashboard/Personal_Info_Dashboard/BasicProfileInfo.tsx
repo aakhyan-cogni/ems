@@ -1,14 +1,9 @@
 import React, { useEffect, useReducer } from "react";
 import { useState } from "react";
-import Female_1 from "../../../assets/Profile_Avatars/Female_1.jpeg";
-import Female_2 from "../../../assets/Profile_Avatars/Female_2.jpeg";
-import Female_3 from "../../../assets/Profile_Avatars/Female_3.jpeg";
-import Male_1 from "../../../assets/Profile_Avatars/Male_1.jpeg";
-import Male_2 from "../../../assets/Profile_Avatars/Male_2.jpeg";
-import Male_3 from "../../../assets/Profile_Avatars/Male_3.jpg";
 import { AnimatePresence, motion } from "motion/react";
-import { useLocalDB } from "../../../store";
 import toast from "react-hot-toast";
+import { useAuthStore } from "../../../store/useAuthStore";
+import { AVATARS } from "../../../config/constants";
 
 interface OrganizationalInfoProps {
 	registerSave: (callback: () => void) => void;
@@ -17,11 +12,19 @@ interface OrganizationalInfoProps {
 const BasicProfileInfo: React.FC<OrganizationalInfoProps> = ({ registerSave }) => {
 	const [isUpdated, setUpdate] = useState(false);
 	const [showModal, setShowModal] = useState(false);
-	const user = useLocalDB((s) => s.user);
-	const setUser = useLocalDB((s) => s.setUser);
+
+	const user = useAuthStore((s) => s.user)!;
+	const syncUser = useAuthStore((s) => s.syncUser);
 	if (!user) return null;
-	const profileImg = user?.avatar ?? "Male_1";
-	const images = { Female_1, Female_2, Female_3, Male_1, Male_2, Male_3 };
+	const profileImg = `http://localhost:5000/uploads/avatars/${user.avatar}`;
+
+	const images = AVATARS.reduce(
+		(acc, curr) => {
+			acc[curr] = `http://localhost:5000/uploads/avatars/${curr}`;
+			return acc;
+		},
+		{} as Record<string, string>,
+	);
 
 	const reducer = (state: typeof user, action: ReducerAction): typeof user => {
 		return {
@@ -42,19 +45,22 @@ const BasicProfileInfo: React.FC<OrganizationalInfoProps> = ({ registerSave }) =
 			if (state.email.length === 0) {
 				return alert("Email cannot be empty...");
 			}
-			setUser((oldUser) => ({ ...oldUser, ...state }));
+			if (!isUpdated) return;
+			syncUser({
+				name: state.name,
+				email: state.email,
+				phoneNumber: state.phoneNumber,
+				dob: state.dob,
+				gender: state.gender,
+			});
+			setUpdate(false);
 		});
 	}, [state]);
 
 	function handleProfilePicChange(e: React.MouseEvent<HTMLImageElement>) {
 		e.preventDefault();
 		const newAvatar = e.currentTarget.id;
-		setUser((prevUser) => {
-			return {
-				...prevUser,
-				avatar: newAvatar,
-			};
-		});
+		syncUser({ avatar: newAvatar });
 		toast.success(`Avatar updated successfully.`);
 		setShowModal(false);
 		return;
@@ -123,11 +129,7 @@ const BasicProfileInfo: React.FC<OrganizationalInfoProps> = ({ registerSave }) =
 				<form className="px-3 pb-3" onSubmit={(e) => e.preventDefault()}>
 					<div className="row g-3">
 						<div className="col-12  d-flex flex-column align-items-center justify-content-center">
-							<img
-								src={images[profileImg as keyof typeof images]}
-								alt="Profile Img"
-								className="w-25 m-3 rounded-circle"
-							/>
+							<img src={profileImg} alt="Profile Img" className="w-25 m-3 rounded-circle" />
 							<button
 								onClick={(e) => {
 									e.preventDefault();

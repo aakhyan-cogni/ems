@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { apiFetch } from "../lib/api";
 
 export interface User {
 	id: string;
@@ -26,25 +27,38 @@ interface AuthState {
 	isAuthenticated: boolean;
 
 	setAuth: (user: User, accessToken: string) => void;
+	setAccessToken: (accessToken: string) => void;
 	updateUser: (userData: Partial<User>) => void;
+	syncUser: (userData: Partial<User>) => Promise<void>;
 	logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
 	persist(
-		(set) => ({
+		(set, get) => ({
 			user: null,
 			accessToken: null,
 			isAuthenticated: false,
 
 			// Call this after successful Login/Register/Refresh
 			setAuth: (user, accessToken) => set({ user, accessToken, isAuthenticated: true }),
-
+			setAccessToken: (accessToken) => set({ accessToken }),
 			// For profile updates
 			updateUser: (userData) =>
 				set((state) => ({
 					user: state.user ? { ...state.user, ...userData } : null,
 				})),
+			syncUser: async (userData) => {
+				// Perform local update
+				get().updateUser(userData);
+
+				// Perform DB update
+				await apiFetch("/user/profile", {
+					method: "PATCH",
+					body: JSON.stringify({ data: userData }),
+					credentials: "include",
+				});
+			},
 
 			// Clear everything on logout
 			logout: () => set({ user: null, accessToken: null, isAuthenticated: false }),

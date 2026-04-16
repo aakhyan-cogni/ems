@@ -1,16 +1,18 @@
 import { Link, NavLink, useNavigate } from "react-router";
 import ThemeSwitch from "./ThemeSwitch";
-import { useLocalDB } from "../store";
 import { Avatar } from "./Avatar";
 import { Bell } from "lucide-react";
 import { Popover, OverlayTrigger } from "react-bootstrap";
 import EMS_LOGO_LIGHT from "../assets/EMS_LOGO_LIGHT.png";
 import EMS_LOGO_DARK from "../assets/EMS_LOGO_DARK.png";
 import { useState } from "react";
+import { useAuthStore } from "../store/useAuthStore";
+import { logout } from "../api/auth.api";
 
 export default function Navbar() {
-	const user = useLocalDB((s) => s.user);
-	const setUser = useLocalDB((s) => s.setUser);
+	const user = useAuthStore((s) => s.user);
+	const localLogout = useAuthStore((s) => s.logout);
+	const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 	const navigate = useNavigate();
 	const [isDark, setIsDark] = useState(() => {
 		return localStorage.getItem("theme") === "dark";
@@ -20,10 +22,9 @@ export default function Navbar() {
 		<nav className="navbar navbar-expand-lg border-bottom sticky-top bg-body-tertiary flex-nowrap">
 			<div className="container gap-md-2">
 				<Link className="navbar-brand fw-bold text-primary m-0 mx-md-5" to="/">
-					{/* EMS */}
 					<img
 						src={isDark ? EMS_LOGO_DARK : EMS_LOGO_LIGHT}
-						alt="EMS"
+						alt="CeleBook Logo"
 						style={{ width: "50px", height: "50px" }}
 					/>
 				</Link>
@@ -42,24 +43,19 @@ export default function Navbar() {
 
 				<div className="collapse navbar-collapse" id="emsNav">
 					<ul className="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3 text-center">
-						{/* <li className="nav-item">
-							<NavLink className="nav-link" to="/">
-								Home
-							</NavLink>
-						</li> */}
 						<li className="nav-item">
 							<NavLink className="nav-link" to="/events">
 								Explore Events
 							</NavLink>
 						</li>
-						{user && (
+						{isAuthenticated && (
 							<li className="nav-item">
 								<NavLink className="nav-link" to="/dashboard">
 									Dashboard
 								</NavLink>
 							</li>
 						)}
-						{user === null && (
+						{!isAuthenticated && (
 							<li className="nav-item">
 								<NavLink className="nav-link" to="/pricing">
 									Pricing
@@ -76,7 +72,7 @@ export default function Navbar() {
 			</div>
 			<div className="d-flex align-items-center gap-3 me-5">
 				<ThemeSwitch isDark={isDark} setIsDark={setIsDark} />
-				{user ? (
+				{isAuthenticated ? (
 					<div className="d-flex align-items-center gap-2">
 						<Link to="/notifications">
 							<Bell size={24} />
@@ -89,7 +85,7 @@ export default function Navbar() {
 								overlay={
 									<Popover id="user-popover" className="shadow border-0">
 										<Popover.Header as="h3" className="text-white border-0">
-											Hi, {user.name.split(" ")[0]}!
+											Hi, {user!.name.split(" ")[0]}!
 										</Popover.Header>
 										<Popover.Body className="p-0">
 											<div className="list-group list-group-flush">
@@ -101,7 +97,7 @@ export default function Navbar() {
 												</Link>
 												<button
 													onClick={() => {
-														setUser(null);
+														logout().then(localLogout);
 														navigate("/");
 													}}
 													className="list-group-item list-group-item-action text-danger border-0"
@@ -114,7 +110,7 @@ export default function Navbar() {
 								}
 							>
 								<div>
-									<Avatar user={user} />
+									<Avatar user={user!} />
 								</div>
 							</OverlayTrigger>
 						</div>

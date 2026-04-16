@@ -5,18 +5,14 @@ import OrganizationalInfo from "./Dashboard/Personal_Info_Dashboard/Organization
 import SavedPaymentMethods from "./Dashboard/Payment_Info_Dashboard/SavedPaymentMethods";
 import TransactionHistory from "./Dashboard/Payment_Info_Dashboard/TransactionHistory";
 import SubscriptionPlans from "./Dashboard/Payment_Info_Dashboard/SubscriptionPlans";
-import { useLocalDB } from "../store";
-import { useNavigate } from "react-router";
 import Dashboard from "./Dashboard/Dashboard";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function ProfileLayout() {
 	const [active, setActive] = useState("dashboard");
-	const setUser = useLocalDB((s) => s.setUser);
-	const navigate = useNavigate();
 	const [hover, setHover] = useState("");
-	const [isLogoutHovered, setIsLogoutHovered] = useState(false);
 
-	const user = useLocalDB((s) => s.user)!;
+	const user = useAuthStore((s) => s.user)!;
 	const now = new Date().getHours();
 	const greeting = now > 5 && now < 12 ? "morning" : now < 17 ? "afternoon" : "evening";
 
@@ -37,7 +33,7 @@ export default function ProfileLayout() {
 									className={`btn outline-none decoration m-1 mb-0 ms-2 text-start px-3 pt-2 border-none `}
 									onClick={() => setActive("dashboard")}
 									aria-current={active === "dashboard" ? "page" : undefined}
-									onMouseOver={() => setHover("dashboard")} 
+									onMouseOver={() => setHover("dashboard")}
 									onMouseOut={() => setHover("")}
 								>
 									<span className="me-2">{"🗓️"}</span>
@@ -146,21 +142,6 @@ export default function ProfileLayout() {
 								as
 							</div>
 						</nav>
-
-						<div className="mt-auto p-3 ">
-							<button
-								type="button"
-								className={`btn w-100 text-warning ${isLogoutHovered ? "btn-warning text-black" : ""}`}
-								onMouseOver={() => setIsLogoutHovered(true)}
-								onMouseLeave={() => setIsLogoutHovered(false)}
-								onClick={() => {
-									setUser(null);
-									navigate("/login");
-								}}
-							>
-								Logout
-							</button>
-						</div>
 					</div>
 				</aside>
 

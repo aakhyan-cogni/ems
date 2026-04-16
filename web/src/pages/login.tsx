@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
@@ -16,6 +16,11 @@ export default function Login() {
 	const [isLogin, setIsLogin] = useState(true);
 	const navigate = useNavigate();
 	const setAuth = useAuthStore((s) => s.setAuth);
+	const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+	useEffect(() => {
+		if (isAuthenticated) navigate("/dashboard");
+	});
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -23,7 +28,9 @@ export default function Login() {
 		const { name, email, password } = Object.fromEntries(formData) as Record<string, string>;
 
 		try {
-			const response = isLogin ? await loginUser(email, password) : await registerUser(name, email, password);
+			const response = isLogin
+				? await loginUser(email, password)
+				: await registerUser(name, email, password, true);
 
 			setAuth(response.user, response.accessToken);
 			toast.success(response.message || "Success!");

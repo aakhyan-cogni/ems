@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState } from "react";
-import { useLocalDB } from "../../../store";
+import { useAuthStore } from "../../../store/useAuthStore";
 
 interface OrganizationalInfoProps {
 	registerSave: (callback: () => void) => void;
@@ -7,8 +7,8 @@ interface OrganizationalInfoProps {
 
 const Address: React.FC<OrganizationalInfoProps> = ({ registerSave }) => {
 	const [isUpdated, setUpdate] = useState(false);
-	const user = useLocalDB((s) => s.user);
-	const setUser = useLocalDB((s) => s.setUser);
+	const user = useAuthStore((s) => s.user)!;
+	const syncUser = useAuthStore((s) => s.syncUser);
 	if (!user) return null;
 
 	const reducer = (state: typeof user, action: ReducerAction): typeof user => {
@@ -22,7 +22,14 @@ const Address: React.FC<OrganizationalInfoProps> = ({ registerSave }) => {
 
 	useEffect(() => {
 		registerSave(() => {
-			setUser((oldUser) => ({ ...oldUser, ...state }));
+			if (!isUpdated) return;
+			syncUser({
+				country: state.country,
+				state: state.state,
+				city: state.city,
+				zipcode: state.zipcode,
+			});
+			setUpdate(false);
 		});
 	}, [state]);
 

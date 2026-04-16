@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as AuthService from "@/services/auth.service";
 import { generateTokens, verifyRefreshToken } from "@/lib";
+import { excludeFields } from "@/lib/util";
 
 /**
  * Registers a new user with the provided email, password, and name. This function first checks if a user with the given email already exists in the database. If not, it hashes the provided password, creates a new user record in the database, generates access and refresh tokens for the new user, and updates the user's record with the refresh token. Finally, it returns a success response with the access token and user information. If any step fails, it returns an appropriate error response.
@@ -76,7 +77,7 @@ export async function login(req: Request, res: Response) {
 		res.status(200).json({
 			message: "Login successful",
 			accessToken: tokens.accessToken,
-			user,
+			user: excludeFields(user, ["password", "refreshToken"]),
 		});
 	} catch (error) {
 		console.error("[login] Error in Auth controller:", error);
