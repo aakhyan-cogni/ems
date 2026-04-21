@@ -1,17 +1,21 @@
-# Todo Checklist
+# TODO
+## Sprint 2
 
-## Done
+### Aakhyan
+- Consent System (Module 1)
+- Security System (Module 9)
 
-- [x] Landing Page (Aakhyan)
-- [x] Extract Footer into its own Component (Aakhyan)
-- [x] Login/Register Page (Deepu)
-- [x] Events Page (Deepika)
-- [x] Dummy data from backend (Aakhyan)
-- [x] Event Creation Flow (Manikaanth)
+### Sushant
+- Admin Dashboard (Module 2)
+- User Profile and Subscription (Module 10)
 
-## Ongoing
+### Deepavigesh
+- Custom form builder (Module 5)
+- Notification (Module 8)
 
-- [ ] Dashboard Page (Sushant)
-- [ ] Support Page (Manikaanth)
+### Manikanth
+- Event CRUD (Module 3)
 
-## Unassigned
+### Deepika
+- File Uploads (Module 7)
+- Event Registration (Module 4)
