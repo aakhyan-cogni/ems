@@ -65,6 +65,28 @@ Private event access must be validated **on every API call**, not just at regist
 - Team counts as one slot against event capacity (configurable: per-team or per-member).
 - A user can only be in one team per event.
 
+### Prisma Enum Reference
+
+All enums are declared once in `schema.prisma` and reused across models. Here is the full set for quick reference:
+
+```prisma
+enum Role             { USER  ADMIN }
+enum Tier             { FREE  PRO  ULTIMATE }
+enum EventStatus      { DRAFT  PENDING_REVIEW  APPROVED  REJECTED }
+enum EventVisibility  { PUBLIC  PRIVATE  UNLISTED }
+enum TeamCapacityMode { PER_TEAM  PER_MEMBER }
+enum RegistrationStatus { CONFIRMED  CANCELLED }
+enum TeamMemberStatus { INVITED  ACCEPTED  DECLINED }
+enum NotificationType {
+  EVENT_APPROVED  EVENT_REJECTED
+  TEAM_INVITE  REGISTRATION_CONFIRMED  EVENT_REMINDER
+}
+```
+
+> **Note for MongoDB + Prisma:** MongoDB has no native enum type. Prisma enums on MongoDB are enforced at the **ORM layer only** — the stored value in the collection is the string name of the variant (e.g., `"APPROVED"`). This is fine; it still gives full TypeScript type safety and prevents invalid values being written through Prisma. Do not attempt to add native MongoDB validation for these — Prisma handles it.
+
+---
+
 ### Admin Role
 
 - Platform has a seeded `ADMIN` user.
@@ -130,12 +152,32 @@ Tasks are labelled `S2-XXX`. Each is designed to be completable by one developer
 **Depends on:** Nothing (uses existing auth middleware)  
 
 **What to build:**
-- The `User` model already has `role`. Ensure Prisma schema has `role String @default("user")` with valid values `user` and `admin`.
+- The `User` model already has `role`. Replace the plain `String` field with a proper enum and also add the `tier` field. Declare both enums in `schema.prisma`:
+
+```prisma
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Tier {
+  FREE
+  PRO
+  ULTIMATE
+}
+```
+
+Update the `User` model fields:
+```prisma
+role Role  @default(USER)
+tier Tier  @default(FREE)
+```
+
 - Create a DB seed script (`server/prisma/seed.ts`) that creates one admin user if none exists. Admin credentials should come from env vars `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
-- Create `admin.middleware.ts`: runs after `authenticate`, checks `req.user.role === 'ADMIN'`, returns `403` otherwise.
+- Create `admin.middleware.ts`: runs after `authenticate`, checks `req.user.role === Role.ADMIN`, returns `403` otherwise.
 - Admin routes under `/api/admin` (all guarded by `authenticate` + `adminOnly`):
   - `GET /admin/users?page=&limit=&role=` — paginated user list (`id, name, email, role, tier, consentAccepted, createdAt`).
-  - `PATCH /admin/users/:id/role` — change user role (body: `{ role: "USER" | "ADMIN" }`).
+  - `PATCH /admin/users/:id/role` — change user role (body: `{ role: Role }`).
   - `GET /admin/events?status=&page=&limit=` — all events with organizer details.
   - `PATCH /admin/events/:id/approve` — set event status to `APPROVED`, trigger notification.
   - `PATCH /admin/events/:id/reject` — set event status to `REJECTED`, body: `{ reason: string }`, trigger notification.
@@ -179,32 +221,54 @@ Tasks are labelled `S2-XXX`. Each is designed to be completable by one developer
 
 **What to build:**
 
-Update `Event` Prisma model:
+Declare the following enums in `schema.prisma` (add alongside `Role` and `Tier` from S2-003):
+
+```prisma
+enum EventStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum EventVisibility {
+  PUBLIC
+  PRIVATE
+  UNLISTED
+}
+
+enum TeamCapacityMode {
+  PER_TEAM
+  PER_MEMBER
+}
 ```
+
+Update `Event` Prisma model:
+```prisma
 model Event {
-  id              String      @id @default(auto()) @map("_id") @db.ObjectId
-  title           String
-  description     String
-  category        String
-  tags            String[]
-  date            DateTime
-  endDate         DateTime?
-  location        String
-  price           Float       @default(0)
-  capacity        Int
-  imgUrls         String[]    @default([])
-  organizerId     String      @db.ObjectId
-  organizer       User        @relation(fields: [organizerId], references: [id])
-  status          String      @default("DRAFT")   // DRAFT | PENDING_REVIEW | APPROVED | REJECTED
-  rejectionReason String?
-  visibility      String      @default("PUBLIC")  // PUBLIC | PRIVATE | UNLISTED
-  isTeamEvent     Boolean     @default(false)
-  minTeamSize     Int?
-  maxTeamSize     Int?
-  teamCapacityMode String?    // "per_team" | "per_member"
-  formSchemaId    String?     @db.ObjectId
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  description      String
+  category         String
+  tags             String[]
+  date             DateTime
+  endDate          DateTime?
+  location         String
+  price            Float            @default(0)
+  capacity         Int
+  imgUrls          String[]         @default([])
+  organizerId      String           @db.ObjectId
+  organizer        User             @relation(fields: [organizerId], references: [id])
+  status           EventStatus      @default(DRAFT)
+  rejectionReason  String?
+  visibility       EventVisibility  @default(PUBLIC)
+  isTeamEvent      Boolean          @default(false)
+  minTeamSize      Int?
+  maxTeamSize      Int?
+  teamCapacityMode TeamCapacityMode?
+  formSchemaId     String?          @db.ObjectId
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 ```
 
@@ -230,9 +294,9 @@ Endpoints:
 **Depends on:** S2-005  
 
 **What to build:**
-- `GET /api/events` — Public listing. Must only return `status === APPROVED` AND `visibility === PUBLIC || UNLISTED` events. Never return `PRIVATE` events in the listing. Support query params: `?q=` (text search on title + description), `?category=`, `?location=`, `?dateFrom=`, `?dateTo=`, `?page=1`, `?limit=20`.
+- `GET /api/events` — Public listing. Must only return `status === EventStatus.APPROVED` AND `visibility === EventVisibility.PUBLIC || EventVisibility.UNLISTED` events. Never return `PRIVATE` events in the listing. Support query params: `?q=` (text search on title + description), `?category=`, `?location=`, `?dateFrom=`, `?dateTo=`, `?page=1`, `?limit=20`.
 - Create a MongoDB text index on `title` and `description` fields via Prisma raw command (add to seed or migration script).
-- `GET /api/events/:id` (update from S2-005) — For `PRIVATE` events, check the requester is either the organizer, an admin, or has a `CONFIRMED` registration for this event.
+- `GET /api/events/:id` (update from S2-005) — For `EventVisibility.PRIVATE` events, check the requester is either the organizer, an admin, or has a `RegistrationStatus.CONFIRMED` registration for this event.
 - Remove the existing mock event data from `event.service.ts`. All data now comes from DB.
 
 **Acceptance criteria:**
@@ -296,19 +360,28 @@ Endpoints:
 
 **What to build:**
 
-New `Registration` Prisma model:
+Declare the following enum in `schema.prisma`:
+
+```prisma
+enum RegistrationStatus {
+  CONFIRMED
+  CANCELLED
+}
 ```
+
+New `Registration` Prisma model:
+```prisma
 model Registration {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  eventId      String   @db.ObjectId
-  event        Event    @relation(fields: [eventId], references: [id])
-  userId       String   @db.ObjectId
-  user         User     @relation(fields: [userId], references: [id])
-  status       String   @default("CONFIRMED") // CONFIRMED | CANCELLED
+  id           String             @id @default(auto()) @map("_id") @db.ObjectId
+  eventId      String             @db.ObjectId
+  event        Event              @relation(fields: [eventId], references: [id])
+  userId       String             @db.ObjectId
+  user         User               @relation(fields: [userId], references: [id])
+  status       RegistrationStatus @default(CONFIRMED)
   formData     Json?
-  teamId       String?  @db.ObjectId
-  registeredAt DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  teamId       String?            @db.ObjectId
+  registeredAt DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
 
   @@unique([eventId, userId])
 }
@@ -433,8 +506,18 @@ Form submission validation (used in S2-009's register endpoint):
 
 **What to build:**
 
-New `Team` Prisma model:
+Declare the following enum in `schema.prisma`:
+
+```prisma
+enum TeamMemberStatus {
+  INVITED
+  ACCEPTED
+  DECLINED
+}
 ```
+
+New `Team` Prisma model and embedded composite type:
+```prisma
 model Team {
   id        String       @id @default(auto()) @map("_id") @db.ObjectId
   eventId   String       @db.ObjectId
@@ -446,8 +529,8 @@ model Team {
 }
 
 type TeamMember {
-  userId String @db.ObjectId
-  status String  // INVITED | ACCEPTED | DECLINED
+  userId String           @db.ObjectId
+  status TeamMemberStatus
 }
 ```
 
@@ -535,18 +618,30 @@ Endpoints:
 
 **What to build:**
 
-New `Notification` Prisma model:
+Declare the following enum in `schema.prisma`:
+
+```prisma
+enum NotificationType {
+  EVENT_APPROVED
+  EVENT_REJECTED
+  TEAM_INVITE
+  REGISTRATION_CONFIRMED
+  EVENT_REMINDER
+}
 ```
+
+New `Notification` Prisma model:
+```prisma
 model Notification {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  type      String   // EVENT_APPROVED | EVENT_REJECTED | TEAM_INVITE | REGISTRATION_CONFIRMED | EVENT_REMINDER
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String           @db.ObjectId
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
   title     String
   message   String
-  data      Json?    // { eventId?, teamId?, reason? } — context for deep-link
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  data      Json?            // { eventId?, teamId?, reason? } — context for deep-link
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
 }
 ```
 
