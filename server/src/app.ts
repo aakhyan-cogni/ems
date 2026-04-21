@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { authRouter, eventRouter, userRouter } from "@/routes";
+import { authRouter, consentRouter, eventRouter, userRouter } from "@/routes";
 
 const app = express();
 
@@ -21,6 +21,7 @@ app.use(express.static("public"));
 app.use("/api/events", eventRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/consent", consentRouter);
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response) => {
