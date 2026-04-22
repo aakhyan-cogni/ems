@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as UserService from "@/services/user.service";
-import { User } from "@prisma/client";
+import type { User } from "@/models";
 import { excludeFields } from "@/lib/util";
 
 export async function getUserProfile(req: Request, res: Response) {

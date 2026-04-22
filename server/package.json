@@ -10,16 +10,16 @@
 		"db:up": "mongod --port 27018 --dbpath \"./mongo-data\" --replSet rs0",
 		"dev": "tsup --watch --onSuccess \"node --no-warnings dist/index.js\"",
 		"build": "tsup",
-		"start": "node dist/index.js",
-		"postinstall": "prisma generate"
+		"start": "node dist/index.js"
 	},
 	"dependencies": {
-		"@prisma/client": "^6.19.3",
 		"bcryptjs": "^3.0.3",
 		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.6",
+		"dotenv": "^16.4.5",
 		"express": "^5.2.1",
 		"jsonwebtoken": "^9.0.3",
+		"mongodb": "^6.10.0",
 		"multer": "^2.1.1"
 	},
 	"devDependencies": {
@@ -30,7 +30,6 @@
 		"@types/multer": "^2.1.0",
 		"@types/node": "^25.6.0",
 		"nodemon": "^3.1.14",
-		"prisma": "6.19",
 		"ts-node": "^10.9.2",
 		"tsup": "^8.5.1",
 		"typescript": "^5.9.3"

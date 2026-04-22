@@ -1,5 +1,7 @@
-import { prisma } from "@/lib";
+import { ObjectId } from "mongodb";
+import { termsConfigs, users } from "@/lib";
 import { DEFAULT_TERMS_VERSION } from "@/config/constants";
+import type { TermsConfigDoc } from "@/models";
 
 /**
  * Retrieves the active TermsConfig singleton. If no record exists, a default
@@ -8,12 +10,27 @@ import { DEFAULT_TERMS_VERSION } from "@/config/constants";
  * @returns The active TermsConfig record
  */
 export async function getOrCreateTermsConfig() {
-	const existing = await prisma.termsConfig.findFirst();
-	if (existing) return existing;
+	const col = await termsConfigs();
+	const existing = await col.findOne({});
+	if (existing) {
+		return {
+			id: existing._id.toString(),
+			currentVersion: existing.currentVersion,
+			updatedAt: existing.updatedAt,
+		};
+	}
 
-	return prisma.termsConfig.create({
-		data: { currentVersion: DEFAULT_TERMS_VERSION },
-	});
+	const now = new Date();
+	const doc: TermsConfigDoc = {
+		currentVersion: DEFAULT_TERMS_VERSION,
+		updatedAt: now,
+	};
+	const result = await col.insertOne(doc);
+	return {
+		id: result.insertedId.toString(),
+		currentVersion: doc.currentVersion,
+		updatedAt: doc.updatedAt,
+	};
 }
 
 /**
@@ -29,24 +46,39 @@ export async function getCurrentTermsVersion(): Promise<string> {
  * Marks the given user as having accepted the current version of the terms.
  * Sets `consentAccepted`, `consentAcceptedAt`, and `consentVersion` on the user.
  * @param userId ID of the user accepting the terms
- * @returns The updated user record (consent fields only)
+ * @returns The updated user record (consent fields only), or null if the user was not found
  */
 export async function acceptConsent(userId: string) {
 	const currentVersion = await getCurrentTermsVersion();
-	return prisma.user.update({
-		where: { id: userId },
-		data: {
-			consentAccepted: true,
-			consentAcceptedAt: new Date(),
-			consentVersion: currentVersion,
+	const col = await users();
+	const now = new Date();
+	const doc = await col.findOneAndUpdate(
+		{ _id: new ObjectId(userId) },
+		{
+			$set: {
+				consentAccepted: true,
+				consentAcceptedAt: now,
+				consentVersion: currentVersion,
+				updatedAt: now,
+			},
 		},
-		select: {
-			id: true,
-			consentAccepted: true,
-			consentAcceptedAt: true,
-			consentVersion: true,
+		{
+			returnDocument: "after",
+			projection: {
+				consentAccepted: 1,
+				consentAcceptedAt: 1,
+				consentVersion: 1,
+			},
 		},
-	});
+	);
+
+	if (!doc) return null;
+	return {
+		id: doc._id.toString(),
+		consentAccepted: doc.consentAccepted,
+		consentAcceptedAt: doc.consentAcceptedAt ?? null,
+		consentVersion: doc.consentVersion ?? null,
+	};
 }
 
 /**
@@ -56,11 +88,9 @@ export async function acceptConsent(userId: string) {
  * @returns Consent status payload: { accepted, userVersion, currentVersion, needsRenewal }
  */
 export async function getConsentStatus(userId: string) {
+	const col = await users();
 	const [user, currentVersion] = await Promise.all([
-		prisma.user.findUnique({
-			where: { id: userId },
-			select: { consentAccepted: true, consentVersion: true },
-		}),
+		col.findOne({ _id: new ObjectId(userId) }, { projection: { consentAccepted: 1, consentVersion: 1 } }),
 		getCurrentTermsVersion(),
 	]);
 

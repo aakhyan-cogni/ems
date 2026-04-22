@@ -14,5 +14,5 @@
 		}
 	},
 	"exclude": ["tsup.config.ts", "node_modules", "dist"],
-	"include": ["prisma.config.ts", "src/**/*"]
+	"include": ["src/**/*"]
 }

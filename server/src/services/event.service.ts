@@ -60,11 +60,11 @@ export const getAllEvents = async (): Promise<Event[]> => {
 		const price = Math.floor(Math.random() * 200);
 		const attendees = Math.floor(Math.random() * 500) + 10;
 
-		const dateOffset = Math.floor(Math.random() * 22) - 7; 
-        const eventDateTime = new Date();
-        eventDateTime.setDate(eventDateTime.getDate() + dateOffset);
-        // Set a random hour for realism
-        eventDateTime.setHours(Math.floor(Math.random() * 12) + 9, 0, 0, 0);
+		const dateOffset = Math.floor(Math.random() * 22) - 7;
+		const eventDateTime = new Date();
+		eventDateTime.setDate(eventDateTime.getDate() + dateOffset);
+		// Set a random hour for realism
+		eventDateTime.setHours(Math.floor(Math.random() * 12) + 9, 0, 0, 0);
 
 		return {
 			id,
