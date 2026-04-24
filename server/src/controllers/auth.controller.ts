@@ -11,6 +11,11 @@ import { excludeFields } from "@/lib/util";
 export async function register(req: Request, res: Response) {
 	try {
 		const { email, password, name } = req.body as Record<string, string>;
+		const { termsAccepted } = req.body as { termsAccepted: boolean };
+
+		if (!termsAccepted) {
+			return res.status(400).json({ message: "You must accept the Terms and Conditions to register" });
+		}
 
 		// Check if user already exists
 		const existingUser = await AuthService.findUserByEmail(email);
@@ -20,7 +25,7 @@ export async function register(req: Request, res: Response) {
 
 		// Hash the password
 		const hashedPassword = await AuthService.hashPassword(password);
-		const user = await AuthService.createUser({ email, password: hashedPassword, name });
+		const user = await AuthService.createUser({ email, password: hashedPassword, name, termsAccepted });
 
 		// Generate tokens
 		const tokens = generateTokens(user);

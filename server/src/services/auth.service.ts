@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { ObjectId } from "mongodb";
 import { users } from "@/lib";
 import { fromDoc, type User, type UserDoc } from "@/models";
+import { getCurrentTermsVersion } from "@/services/consent.service";
 
 /**
  * Hashes the given password using bcrypt and returns the hashed password. This function generates a salt and uses it to hash the password securely.
@@ -61,16 +62,19 @@ export async function validateRefreshToken(userId: string, refreshToken: string)
  * @param data Object containing the email, hashed password, and name for the new user
  * @returns The created user's id, email, name, and role
  */
-export async function createUser(data: Pick<UserDoc, "email" | "password" | "name">) {
+export async function createUser(data: Pick<UserDoc, "email" | "password" | "name"> & { termsAccepted: boolean }) {
 	const col = await users();
 	const now = new Date();
+	const currentVersion = data.termsAccepted ? await getCurrentTermsVersion() : null;
 	const insertDoc: UserDoc = {
 		email: data.email,
 		password: data.password,
 		name: data.name,
 		avatar: "default.png",
 		role: "user",
-		consentAccepted: false,
+		consentAccepted: data.termsAccepted,
+		consentAcceptedAt: data.termsAccepted ? now : null,
+		consentVersion: currentVersion,
 		createdAt: now,
 		updatedAt: now,
 	};
@@ -80,5 +84,7 @@ export async function createUser(data: Pick<UserDoc, "email" | "password" | "nam
 		email: data.email,
 		name: data.name,
 		role: "user",
+		consentAccepted: data.termsAccepted,
+		consentVersion: currentVersion,
 	};
 }

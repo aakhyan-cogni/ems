@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
+import { Link } from "react-router";
 
 interface AuthFormProps {
 	isLogin: boolean;
@@ -67,6 +68,38 @@ export default function AuthForm({ isLogin, onSubmit, onToggle }: AuthFormProps)
 						required
 					/>
 				</div>
+
+				<AnimatePresence mode="popLayout">
+					{!isLogin && (
+						<motion.div
+							initial={{ opacity: 0, height: 0 }}
+							animate={{ opacity: 1, height: "auto" }}
+							exit={{ opacity: 0, height: 0 }}
+							className="mb-3"
+						>
+							<div className="form-check">
+								<input
+									type="checkbox"
+									className="form-check-input"
+									id="termsAccepted"
+									name="termsAccepted"
+									required={!isLogin}
+								/>
+								<label className="form-check-label small" htmlFor="termsAccepted">
+									I agree to the{" "}
+									<Link
+										to="/terms"
+										className="text-primary fw-semibold"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										Terms and Conditions
+									</Link>
+								</label>
+							</div>
+						</motion.div>
+					)}
+				</AnimatePresence>
 
 				<motion.button
 					whileHover={{ scale: 1.02 }}
