@@ -1,6 +1,6 @@
 # EMS Sprint 2 — Task Plan
 
-> **Stack recap:** React 19 + Vite + TypeScript + Zustand (frontend) · Express 5 + Prisma + MongoDB (backend)  
+> **Stack recap:** React 19 + Vite + TypeScript + Zustand (frontend) · Express 5 + MongoDB (native `mongodb` driver) (backend)  
 > **Team size:** 5 developers  
 > **Goal:** Complete a production-usable Event Management System with approval workflows, tiers, form builders, and team participation.
 
@@ -65,25 +65,27 @@ Private event access must be validated **on every API call**, not just at regist
 - Team counts as one slot against event capacity (configurable: per-team or per-member).
 - A user can only be in one team per event.
 
-### Prisma Enum Reference
+### Enum / Status Reference
 
-All enums are declared once in `schema.prisma` and reused across models. Here is the full set for quick reference:
+MongoDB has no native enum type, so all "enums" are **TypeScript string union types** declared once under `server/src/models/` and reused across services. The stored value in the collection is the string variant (e.g., `"APPROVED"`). Validation is enforced at the service layer (optionally with Zod — see S2-019). Here is the full set for quick reference:
 
-```prisma
-enum Role             { USER  ADMIN }
-enum Tier             { FREE  PRO  ULTIMATE }
-enum EventStatus      { DRAFT  PENDING_REVIEW  APPROVED  REJECTED }
-enum EventVisibility  { PUBLIC  PRIVATE  UNLISTED }
-enum TeamCapacityMode { PER_TEAM  PER_MEMBER }
-enum RegistrationStatus { CONFIRMED  CANCELLED }
-enum TeamMemberStatus { INVITED  ACCEPTED  DECLINED }
-enum NotificationType {
-  EVENT_APPROVED  EVENT_REJECTED
-  TEAM_INVITE  REGISTRATION_CONFIRMED  EVENT_REMINDER
-}
+```ts
+export type Role               = "USER" | "ADMIN";
+export type Tier               = "FREE" | "PRO" | "ULTIMATE";
+export type EventStatus        = "DRAFT" | "PENDING_REVIEW" | "APPROVED" | "REJECTED";
+export type EventVisibility    = "PUBLIC" | "PRIVATE" | "UNLISTED";
+export type TeamCapacityMode   = "PER_TEAM" | "PER_MEMBER";
+export type RegistrationStatus = "CONFIRMED" | "CANCELLED";
+export type TeamMemberStatus   = "INVITED" | "ACCEPTED" | "DECLINED";
+export type NotificationType =
+    | "EVENT_APPROVED"
+    | "EVENT_REJECTED"
+    | "TEAM_INVITE"
+    | "REGISTRATION_CONFIRMED"
+    | "EVENT_REMINDER";
 ```
 
-> **Note for MongoDB + Prisma:** MongoDB has no native enum type. Prisma enums on MongoDB are enforced at the **ORM layer only** — the stored value in the collection is the string name of the variant (e.g., `"APPROVED"`). This is fine; it still gives full TypeScript type safety and prevents invalid values being written through Prisma. Do not attempt to add native MongoDB validation for these — Prisma handles it.
+> **Note:** Since the driver will accept any string, **always validate incoming values** (via Zod schemas in S2-019 or explicit guards) before writing. For convenience, co-locate runtime arrays of allowed values alongside the union type (e.g., `export const EVENT_STATUSES = ["DRAFT", ...] as const`) so they can be used in validation and exhaustiveness checks.
 
 ---
 
@@ -110,11 +112,11 @@ Tasks are labelled `S2-XXX`. Each is designed to be completable by one developer
 **Depends on:** Nothing  
 
 **What to build:**
-- Add fields to the `User` Prisma model: `consentAccepted Boolean @default(false)`, `consentAcceptedAt DateTime?`, `consentVersion String?`
-- Create a `TermsConfig` model (singleton): `{ id, currentVersion String, updatedAt }`. Seed it with version `"v1.0"`.
-- New endpoint: `POST /api/consent/accept` (authenticated) — sets `consentAccepted = true`, `consentAcceptedAt = now()`, `consentVersion = currentTermsVersion`. Returns `{ ok: true }`.
-- New endpoint: `GET /api/consent/status` (authenticated) — returns `{ accepted: bool, userVersion: string, currentVersion: string, needsRenewal: bool }`.
-- Add `consentCheck` middleware that runs after `authenticate` on protected routes: if `user.consentVersion !== TermsConfig.currentVersion`, respond `403 CONSENT_REQUIRED`. The frontend handles this response code to show the re-consent modal.
+- Add fields to the `UserDoc` interface (`server/src/models/user.model.ts`) and the `User` collection: `consentAccepted: boolean` (default `false`), `consentAcceptedAt?: Date`, `consentVersion?: string`. No schema migration needed — MongoDB is schemaless; just ensure service writes default these on insert. *(Already implemented in the current codebase.)*
+- Create a `TermsConfig` singleton collection with a `TermsConfigDoc` interface: `{ _id, currentVersion: string, updatedAt: Date }`. Seed it with version `"v1.0"` (the `consent.service.ts::getOrCreateTermsConfig` helper already lazily creates this on first read). *(Already implemented.)*
+- New endpoint: `POST /api/consent/accept` (authenticated) — sets `consentAccepted = true`, `consentAcceptedAt = now()`, `consentVersion = currentTermsVersion`. Returns `{ ok: true }`. *(Already implemented.)*
+- New endpoint: `GET /api/consent/status` (authenticated) — returns `{ accepted: bool, userVersion: string, currentVersion: string, needsRenewal: bool }`. *(Already implemented.)*
+- Add `consentCheck` middleware that runs after `authenticate` on protected routes: if `user.consentVersion !== TermsConfig.currentVersion`, respond `403 CONSENT_REQUIRED`. The frontend handles this response code to show the re-consent modal. *(Already implemented in `consent.middleware.ts`.)*
 - Apply `consentCheck` to: event creation, registration, form submission, team creation routes.
 
 **Acceptance criteria:**
@@ -152,29 +154,23 @@ Tasks are labelled `S2-XXX`. Each is designed to be completable by one developer
 **Depends on:** Nothing (uses existing auth middleware)  
 
 **What to build:**
-- The `User` model already has `role`. Replace the plain `String` field with a proper enum and also add the `tier` field. Declare both enums in `schema.prisma`:
+- The `User` document already has `role: string`. Narrow it to the `Role` union and add a `tier` field. Declare both unions in `server/src/models/user.model.ts`:
 
-```prisma
-enum Role {
-  USER
-  ADMIN
-}
+```ts
+export type Role = "USER" | "ADMIN";
+export type Tier = "FREE" | "PRO" | "ULTIMATE";
 
-enum Tier {
-  FREE
-  PRO
-  ULTIMATE
+export interface UserDoc {
+    // ...existing fields
+    role: Role; // write default "USER" on createUser
+    tier: Tier; // write default "FREE" on createUser
 }
 ```
 
-Update the `User` model fields:
-```prisma
-role Role  @default(USER)
-tier Tier  @default(FREE)
-```
-
-- Create a DB seed script (`server/prisma/seed.ts`) that creates one admin user if none exists. Admin credentials should come from env vars `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
-- Create `admin.middleware.ts`: runs after `authenticate`, checks `req.user.role === Role.ADMIN`, returns `403` otherwise.
+- Update `auth.service.ts::createUser` to write `role: "USER"` and `tier: "FREE"` as defaults on insert (MongoDB has no schema-level defaults).
+- Backfill: write a one-off script or a lazy read-migration in `user.service.ts::getUserById` that sets `tier: "FREE"` on any user doc missing it, so old records stay compatible.
+- Create a DB seed script (`server/src/seed.ts`, wired to `npm run db:seed`) that connects via the shared `mongo.ts` client and `insertOne`s an admin user into the `User` collection if none with `role === "ADMIN"` exists. Admin credentials should come from env vars `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+- Create `admin.middleware.ts`: runs after `authenticate`, checks `req.user.role === "ADMIN"`, returns `403` otherwise.
 - Admin routes under `/api/admin` (all guarded by `authenticate` + `adminOnly`):
   - `GET /admin/users?page=&limit=&role=` — paginated user list (`id, name, email, role, tier, consentAccepted, createdAt`).
   - `PATCH /admin/users/:id/role` — change user role (body: `{ role: Role }`).
@@ -221,64 +217,57 @@ tier Tier  @default(FREE)
 
 **What to build:**
 
-Declare the following enums in `schema.prisma` (add alongside `Role` and `Tier` from S2-003):
+Declare the following union types in `server/src/models/event.model.ts` (add alongside `Role` and `Tier` from S2-003):
 
-```prisma
-enum EventStatus {
-  DRAFT
-  PENDING_REVIEW
-  APPROVED
-  REJECTED
-}
+```ts
+export type EventStatus      = "DRAFT" | "PENDING_REVIEW" | "APPROVED" | "REJECTED";
+export type EventVisibility  = "PUBLIC" | "PRIVATE" | "UNLISTED";
+export type TeamCapacityMode = "PER_TEAM" | "PER_MEMBER";
+```
 
-enum EventVisibility {
-  PUBLIC
-  PRIVATE
-  UNLISTED
-}
-
-enum TeamCapacityMode {
-  PER_TEAM
-  PER_MEMBER
+Extend `EventDoc` (currently shaped for the starter data — see `server/src/models/event.model.ts`) to the full sprint spec:
+```ts
+export interface EventDoc {
+    _id?: ObjectId;
+    title: string;
+    description: string;
+    category: string;
+    tags: string[];
+    date: Date;
+    endDate?: Date | null;
+    location: string;
+    price: number;                     // default 0, set on insert
+    capacity: number;
+    imgUrls: string[];                 // default [], set on insert
+    organizerId: ObjectId;             // ref to User._id
+    organizerEmail: string;            // denormalized for UI
+    status: EventStatus;               // default "DRAFT" on insert
+    rejectionReason?: string | null;
+    visibility: EventVisibility;       // default "PUBLIC" on insert
+    isTeamEvent: boolean;              // default false on insert
+    minTeamSize?: number | null;
+    maxTeamSize?: number | null;
+    teamCapacityMode?: TeamCapacityMode | null;
+    formSchemaId?: ObjectId | null;    // ref to FormSchema._id
+    createdAt: Date;
+    updatedAt: Date;
 }
 ```
 
-Update `Event` Prisma model:
-```prisma
-model Event {
-  id               String           @id @default(auto()) @map("_id") @db.ObjectId
-  title            String
-  description      String
-  category         String
-  tags             String[]
-  date             DateTime
-  endDate          DateTime?
-  location         String
-  price            Float            @default(0)
-  capacity         Int
-  imgUrls          String[]         @default([])
-  organizerId      String           @db.ObjectId
-  organizer        User             @relation(fields: [organizerId], references: [id])
-  status           EventStatus      @default(DRAFT)
-  rejectionReason  String?
-  visibility       EventVisibility  @default(PUBLIC)
-  isTeamEvent      Boolean          @default(false)
-  minTeamSize      Int?
-  maxTeamSize      Int?
-  teamCapacityMode TeamCapacityMode?
-  formSchemaId     String?          @db.ObjectId
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-}
-```
+> Defaults are set in `event.service.ts` on insert (there is no schema-level default). Pair with a Zod schema in S2-019 for input validation.
+
+Indexes (create once on startup via a `mongo.ts::ensureIndexes()` helper, or via the seed script):
+- `{ organizerId: 1 }`
+- `{ status: 1, visibility: 1 }`
+- `{ date: 1 }`
 
 Endpoints:
-- `POST /api/events` (auth + consentCheck + tierCheck) — Create event. Initial status always `DRAFT`. Returns created event.
-- `PATCH /api/events/:id` (auth) — Update event. Only organizer or admin can update. Only `DRAFT` or `REJECTED` events can be edited by the organizer. Admin can edit any.
-- `DELETE /api/events/:id` (auth) — Soft-delete or hard-delete. Only allowed if no registrations exist (return `409` if registrations exist). Only organizer or admin.
-- `POST /api/events/:id/publish` (auth + consentCheck + tierCheck) — Transition from `DRAFT` to `PENDING_REVIEW` (if first published event) or `APPROVED` (subsequent events). **Tier check:** count of user's currently `APPROVED` events must be below tier limit.
-- `GET /api/events/mine` (auth) — Current user's events (all statuses). Include registration count per event.
-- `GET /api/events/:id` — Single event. If `PRIVATE`, validate requester is organizer, admin, or registered attendee. If status is not `APPROVED`, only organizer/admin can view.
+- `POST /api/events` (auth + consentCheck + tierCheck) — Create event via `events().insertOne(...)`. Initial status always `"DRAFT"`. Returns created event (use the `fromDoc` mapper so `id` is a string).
+- `PATCH /api/events/:id` (auth) — Update event via `events().findOneAndUpdate(...)`. Only organizer or admin can update. Only `"DRAFT"` or `"REJECTED"` events can be edited by the organizer. Admin can edit any.
+- `DELETE /api/events/:id` (auth) — Hard-delete via `events().deleteOne(...)` (optionally flag soft-delete instead). Only allowed if no registrations exist: pre-check with `registrations().countDocuments({ eventId: new ObjectId(id) })` (return `409` if > 0). Only organizer or admin.
+- `POST /api/events/:id/publish` (auth + consentCheck + tierCheck) — Transition from `"DRAFT"` to `"PENDING_REVIEW"` (if first published event) or `"APPROVED"` (subsequent events). **Tier check:** `events().countDocuments({ organizerId, status: "APPROVED" })` must be below tier limit.
+- `GET /api/events/mine` (auth) — Current user's events (all statuses). Use an aggregation pipeline with a `$lookup` on `Registration` to attach registration count per event.
+- `GET /api/events/:id` — Single event. If `"PRIVATE"`, validate requester is organizer, admin, or registered attendee. If status is not `"APPROVED"`, only organizer/admin can view.
 
 **Acceptance criteria:**
 - Events created via API are stored in MongoDB.
@@ -294,10 +283,10 @@ Endpoints:
 **Depends on:** S2-005  
 
 **What to build:**
-- `GET /api/events` — Public listing. Must only return `status === EventStatus.APPROVED` AND `visibility === EventVisibility.PUBLIC || EventVisibility.UNLISTED` events. Never return `PRIVATE` events in the listing. Support query params: `?q=` (text search on title + description), `?category=`, `?location=`, `?dateFrom=`, `?dateTo=`, `?page=1`, `?limit=20`.
-- Create a MongoDB text index on `title` and `description` fields via Prisma raw command (add to seed or migration script).
-- `GET /api/events/:id` (update from S2-005) — For `EventVisibility.PRIVATE` events, check the requester is either the organizer, an admin, or has a `RegistrationStatus.CONFIRMED` registration for this event.
-- Remove the existing mock event data from `event.service.ts`. All data now comes from DB.
+- `GET /api/events` — Public listing. Build a Mongo filter that always includes `{ status: "APPROVED", visibility: { $in: ["PUBLIC", "UNLISTED"] } }`. Never return `"PRIVATE"` events in the listing. Support query params: `?q=` (text search on title + description), `?category=`, `?location=`, `?dateFrom=`, `?dateTo=`, `?page=1`, `?limit=20`. Use `.find(filter).skip().limit()` + `.countDocuments()` for pagination.
+- Create a MongoDB text index on `title` and `description` at startup using the native driver: `events().createIndex({ title: "text", description: "text" })`. For `?q=`, use `{ $text: { $search: q } }` in the filter. Colocate this in a `mongo.ts::ensureIndexes()` helper called once on app boot.
+- `GET /api/events/:id` (update from S2-005) — For `visibility === "PRIVATE"` events, check the requester is either the organizer, an admin, or has a `Registration` doc with `{ eventId, userId, status: "CONFIRMED" }` for this event.
+- Remove the existing mock event data from `event.service.ts` (the current `getAllEvents` returning a hardcoded list). All data now comes from the `Event` collection.
 
 **Acceptance criteria:**
 - `GET /api/events` never returns private or unapproved events.
@@ -360,37 +349,39 @@ Endpoints:
 
 **What to build:**
 
-Declare the following enum in `schema.prisma`:
+Declare the following union in `server/src/models/registration.model.ts`:
 
-```prisma
-enum RegistrationStatus {
-  CONFIRMED
-  CANCELLED
-}
+```ts
+export type RegistrationStatus = "CONFIRMED" | "CANCELLED";
 ```
 
-New `Registration` Prisma model:
-```prisma
-model Registration {
-  id           String             @id @default(auto()) @map("_id") @db.ObjectId
-  eventId      String             @db.ObjectId
-  event        Event              @relation(fields: [eventId], references: [id])
-  userId       String             @db.ObjectId
-  user         User               @relation(fields: [userId], references: [id])
-  status       RegistrationStatus @default(CONFIRMED)
-  formData     Json?
-  teamId       String?            @db.ObjectId
-  registeredAt DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-
-  @@unique([eventId, userId])
+New `Registration` collection + `RegistrationDoc` interface:
+```ts
+export interface RegistrationDoc {
+    _id?: ObjectId;
+    eventId: ObjectId;             // ref to Event._id
+    userId: ObjectId;              // ref to User._id
+    status: RegistrationStatus;    // default "CONFIRMED" on insert
+    formData?: Record<string, unknown> | null;
+    teamId?: ObjectId | null;      // ref to Team._id
+    registeredAt: Date;
+    updatedAt: Date;
 }
+
+export const REGISTRATION_COLLECTION = "Registration";
 ```
+
+Indexes (in `ensureIndexes`):
+- `{ eventId: 1, userId: 1 }` with `{ unique: true }` — enforces "no double-registration" at the DB level.
+- `{ userId: 1 }` — for `/registrations/mine`.
+- `{ eventId: 1, status: 1 }` — for confirmed-count queries.
+
+Add a `registrations()` collection getter in `server/src/lib/mongo.ts` alongside `users()` / `events()`.
 
 Endpoints:
-- `POST /api/events/:id/register` (auth + consentCheck) — Register for an event. Validate: event is `APPROVED`, not full (check capacity vs confirmed registrations count), user not already registered, event is not a team event (team events use the team registration flow). If event has a form schema, validate `formData` against it. Create Registration record. Trigger confirmation notification.
-- `DELETE /api/events/:id/register` (auth) — Cancel registration. Only allowed if event date is >24h away (configurable). Set status to `CANCELLED`.
-- `GET /api/events/:id/registrations` (auth) — Organizer or admin only. Returns list of registrations with user details.
+- `POST /api/events/:id/register` (auth + consentCheck) — Register for an event. Validate: event is `"APPROVED"`, not full (compare `event.capacity` vs `registrations().countDocuments({ eventId, status: "CONFIRMED" })`), user not already registered (the unique index will reject on race), event is not a team event (team events use the team registration flow). If event has a `formSchemaId`, validate `formData` against it. Insert a Registration doc. Trigger confirmation notification. On `MongoServerError` with code 11000 (dup-key), return `409`.
+- `DELETE /api/events/:id/register` (auth) — Cancel registration. Only allowed if event date is >24h away (configurable). `findOneAndUpdate` to set `status: "CANCELLED"`.
+- `GET /api/events/:id/registrations` (auth) — Organizer or admin only. Returns registrations joined to users via aggregation (`$lookup` on User).
 - `GET /api/registrations/mine` (auth) — Current user's registrations across all events.
 
 **Acceptance criteria:**
@@ -432,39 +423,43 @@ Endpoints:
 
 **What to build:**
 
-New `FormSchema` Prisma model:
-```
-model FormSchema {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  eventId   String   @unique @db.ObjectId
-  fields    Json     // Array of FormField objects
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+New `FormSchema` collection + `FormSchemaDoc` interface (`server/src/models/form-schema.model.ts`):
+```ts
+export interface FormSchemaDoc {
+    _id?: ObjectId;
+    eventId: ObjectId;   // ref to Event._id; one form per event
+    fields: FormField[]; // embedded array
+    createdAt: Date;
+    updatedAt: Date;
 }
+
+export const FORM_SCHEMA_COLLECTION = "FormSchema";
 ```
 
-`FormField` JSON shape (document the type in a shared types file):
-```typescript
-type FieldType = 'short_text' | 'long_text' | 'dropdown' | 'checkbox' | 'radio' | 'number' | 'email'
-interface FormField {
-  id: string          // uuid
-  type: FieldType
-  label: string
-  placeholder?: string
-  required: boolean
-  options?: string[]  // for dropdown, radio, checkbox
-  validation?: { min?: number; max?: number; pattern?: string }
+Index (in `ensureIndexes`): `{ eventId: 1 }` with `{ unique: true }` — enforces one form per event.
+
+`FormField` shape (co-located in the same model file, or a shared types file):
+```ts
+export type FieldType = "short_text" | "long_text" | "dropdown" | "checkbox" | "radio" | "number" | "email";
+export interface FormField {
+    id: string;          // uuid
+    type: FieldType;
+    label: string;
+    placeholder?: string;
+    required: boolean;
+    options?: string[];  // for dropdown, radio, checkbox
+    validation?: { min?: number; max?: number; pattern?: string };
 }
 ```
 
 Endpoints:
-- `POST /api/events/:id/form` (auth + tierCheck: PRO+ only) — Create or replace the form schema for an event. Only organizer or admin.
-- `GET /api/events/:id/form` — Return form schema. Public if event is public; private follows event visibility rules.
-- `DELETE /api/events/:id/form` (auth) — Remove form from event. Only organizer or admin.
+- `POST /api/events/:id/form` (auth + tierCheck: PRO+ only) — Create or replace via `formSchemas().replaceOne({ eventId }, doc, { upsert: true })`. After upsert, `events().updateOne({ _id: eventId }, { $set: { formSchemaId: <insertedId> } })`. Only organizer or admin.
+- `GET /api/events/:id/form` — Return form schema via `formSchemas().findOne({ eventId })`. Public if event is public; private follows event visibility rules.
+- `DELETE /api/events/:id/form` (auth) — `formSchemas().deleteOne({ eventId })` and `$unset: { formSchemaId: "" }` on the event. Only organizer or admin.
 
 Form submission validation (used in S2-009's register endpoint):
 - Extract shared form validation logic into `form.service.ts`.
-- `validateFormData(schema: FormSchema, data: Record<string, unknown>): { valid: boolean; errors: Record<string, string> }`
+- `validateFormData(schema: FormSchemaDoc, data: Record<string, unknown>): { valid: boolean; errors: Record<string, string> }`
 - Validates required fields, type coercion, and pattern/range validation.
 
 **Acceptance criteria:**
@@ -506,47 +501,48 @@ Form submission validation (used in S2-009's register endpoint):
 
 **What to build:**
 
-Declare the following enum in `schema.prisma`:
+Declare the following union in `server/src/models/team.model.ts`:
 
-```prisma
-enum TeamMemberStatus {
-  INVITED
-  ACCEPTED
-  DECLINED
-}
+```ts
+export type TeamMemberStatus = "INVITED" | "ACCEPTED" | "DECLINED";
 ```
 
-New `Team` Prisma model and embedded composite type:
-```prisma
-model Team {
-  id        String       @id @default(auto()) @map("_id") @db.ObjectId
-  eventId   String       @db.ObjectId
-  event     Event        @relation(fields: [eventId], references: [id])
-  name      String
-  leaderId  String       @db.ObjectId
-  members   TeamMember[]
-  createdAt DateTime     @default(now())
+New `Team` collection + `TeamDoc` interface with an embedded `TeamMember[]`:
+```ts
+export interface TeamMember {
+    userId: ObjectId;
+    status: TeamMemberStatus;
 }
 
-type TeamMember {
-  userId String           @db.ObjectId
-  status TeamMemberStatus
+export interface TeamDoc {
+    _id?: ObjectId;
+    eventId: ObjectId;       // ref to Event._id
+    name: string;
+    leaderId: ObjectId;      // ref to User._id
+    members: TeamMember[];   // embedded
+    createdAt: Date;
 }
+
+export const TEAM_COLLECTION = "Team";
 ```
+
+Indexes (in `ensureIndexes`):
+- `{ eventId: 1 }` — list teams per event.
+- `{ eventId: 1, "members.userId": 1 }` — "is this user already in a team for this event?" check.
 
 Endpoints:
-- `POST /api/events/:id/teams` (auth + consentCheck + tierCheck: PRO+) — Create a team. Validates: event is a team event, event is APPROVED, user not already in a team for this event, total teams × maxTeamSize does not exceed capacity. Leader is auto-added as ACCEPTED. Creates a Registration record for the leader linked to teamId.
-- `POST /api/events/:id/teams/:teamId/invite` (auth) — Invite a user by email. Only team leader can invite. Validates: team not full (`members.ACCEPTED.length < event.maxTeamSize`), user not already in a team for this event. Creates a TeamMember entry with status INVITED. Triggers a notification to the invited user.
-- `PATCH /api/events/:id/teams/:teamId/respond` (auth) — Accept or decline invite. Body: `{ action: "accept" | "decline" }`. On accept: validates team still has room, sets status ACCEPTED, creates Registration record. On decline: sets status DECLINED.
-- `GET /api/events/:id/teams` (auth) — Returns teams. Organizer/admin gets all teams with member details. Regular user gets only their own team.
-- `DELETE /api/events/:id/teams/:teamId/members/:userId` (auth) — Remove a member (leader only, or self-removal). Cannot remove leader; leader must disband instead.
-- `DELETE /api/events/:id/teams/:teamId` (auth) — Disband team (leader only). Cancels all team Registrations.
+- `POST /api/events/:id/teams` (auth + consentCheck + tierCheck: PRO+) — Create a team. Validates: event `isTeamEvent === true`, `event.status === "APPROVED"`, user not already in a team for this event (`teams().findOne({ eventId, "members.userId": userId })`), total teams × `event.maxTeamSize` does not exceed capacity. Leader is auto-added as `"ACCEPTED"`. Create a Registration doc for the leader with the new `teamId`.
+- `POST /api/events/:id/teams/:teamId/invite` (auth) — Invite a user by email. Only team leader. Validates: team not full (accepted member count < `event.maxTeamSize`), invitee not already in a team for this event. Push a `TeamMember` entry with status `"INVITED"` via `$push` on `members`. Trigger notification.
+- `PATCH /api/events/:id/teams/:teamId/respond` (auth) — Accept or decline invite. Body: `{ action: "accept" | "decline" }`. On accept: re-validate team still has room, update the matching member subdoc via `$set: { "members.$[m].status": "ACCEPTED" }` with an arrayFilter on `m.userId`, and insert a Registration doc. On decline: set status `"DECLINED"` the same way.
+- `GET /api/events/:id/teams` (auth) — Organizer/admin gets all teams with member details (aggregation `$lookup` on User). Regular user gets only their own team.
+- `DELETE /api/events/:id/teams/:teamId/members/:userId` (auth) — Remove a member via `$pull: { members: { userId } }` (leader only, or self-removal). Cannot remove leader; leader must disband instead.
+- `DELETE /api/events/:id/teams/:teamId` (auth) — Disband (leader only). `teams().deleteOne` + `registrations().updateMany({ teamId }, { $set: { status: "CANCELLED" } })`.
 
 **Acceptance criteria:**
 - FREE tier user cannot create a team (403).
 - Inviting a user who is already in a team for the event returns 409.
 - A team cannot exceed `event.maxTeamSize` accepted members.
-- Disbanding a team cancels all associated Registration records.
+- Disbanding a team cancels all associated Registration docs.
 
 ---
 
@@ -618,32 +614,36 @@ Endpoints:
 
 **What to build:**
 
-Declare the following enum in `schema.prisma`:
+Declare the following union in `server/src/models/notification.model.ts`:
 
-```prisma
-enum NotificationType {
-  EVENT_APPROVED
-  EVENT_REJECTED
-  TEAM_INVITE
-  REGISTRATION_CONFIRMED
-  EVENT_REMINDER
-}
+```ts
+export type NotificationType =
+    | "EVENT_APPROVED"
+    | "EVENT_REJECTED"
+    | "TEAM_INVITE"
+    | "REGISTRATION_CONFIRMED"
+    | "EVENT_REMINDER";
 ```
 
-New `Notification` Prisma model:
-```prisma
-model Notification {
-  id        String           @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String           @db.ObjectId
-  user      User             @relation(fields: [userId], references: [id])
-  type      NotificationType
-  title     String
-  message   String
-  data      Json?            // { eventId?, teamId?, reason? } — context for deep-link
-  read      Boolean          @default(false)
-  createdAt DateTime         @default(now())
+New `Notification` collection + `NotificationDoc` interface:
+```ts
+export interface NotificationDoc {
+    _id?: ObjectId;
+    userId: ObjectId;        // ref to User._id — recipient
+    type: NotificationType;
+    title: string;
+    message: string;
+    data?: Record<string, unknown> | null; // { eventId?, teamId?, reason? } — context for deep-link
+    read: boolean;           // default false on insert
+    createdAt: Date;
 }
+
+export const NOTIFICATION_COLLECTION = "Notification";
 ```
+
+Indexes (in `ensureIndexes`):
+- `{ userId: 1, createdAt: -1 }` — list newest-first per user.
+- `{ userId: 1, read: 1 }` — unread count.
 
 `notification.service.ts` with a `createNotification(userId, type, title, message, data?)` function. Call this from:
 - `admin.controller.ts` approve → `EVENT_APPROVED` to organizer.
@@ -703,8 +703,8 @@ Endpoints:
   - Registration: 30 requests / hour per user.
   - Admin routes: 100 requests / 15 min per IP.
 - **Environment validation:** On app startup, check that `ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`, and `DATABASE_URL` are set and not equal to `"abc"` or `"def"` (dev defaults). Throw a startup error if in `NODE_ENV=production` with default secrets.
-- **Ownership checks:** Audit all `PATCH` and `DELETE` event/form/team endpoints to verify `organizerId === req.user.userId` before allowing the operation. Admin bypasses this check.
-- **Query privacy guard:** Add a shared `eventVisibilityFilter(userId?, role?)` utility that returns Prisma `where` conditions ensuring private/unapproved events are never leaked.
+- **Ownership checks:** Audit all `PATCH` and `DELETE` event/form/team endpoints to verify `organizerId.equals(new ObjectId(req.user.userId))` before allowing the operation. Admin bypasses this check.
+- **Query privacy guard:** Add a shared `eventVisibilityFilter(userId?, role?)` utility that returns a MongoDB `Filter<EventDoc>` object ensuring private/unapproved events are never leaked. Every `events().find(...)` call must merge this filter in (spread it into the query).
 - **File upload security:** Verify MIME type by reading file buffer magic bytes (not just `Content-Type` header) in Multer's `fileFilter`.
 
 **Acceptance criteria:**
