@@ -16,6 +16,8 @@ import Pricing from "./pages/Pricing.tsx";
 import SupportPage from "./pages/SupportPage.tsx";
 import NotificationPage from "./pages/NotificationPage.tsx";
 import { Hydrate } from "./components/Hydrate.tsx";
+import ConsentModal from "./components/ConsentModal.tsx";
+import Terms from "./pages/Terms.tsx";
 
 createRoot(document.getElementById("root")!).render(<Root />);
 
@@ -41,6 +43,7 @@ function Root() {
 					fieldStrength={10}
 				/>
 				<Hydrate />
+				<ConsentModal />
 				<Navbar />
 				<Routes>
 					<Route path="/" element={<App />} />
@@ -51,6 +54,7 @@ function Root() {
 					<Route path="/pricing" element={<Pricing />} />
 					<Route path="/support" element={<SupportPage />} />
 					<Route path="/notifications" element={<NotificationPage />} />
+					<Route path="/terms" element={<Terms />} />
 				</Routes>
 				<Footer />
 				<Toaster position="bottom-center" />

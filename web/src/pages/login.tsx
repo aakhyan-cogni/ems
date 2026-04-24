@@ -26,11 +26,12 @@ export default function Login() {
 		e.preventDefault();
 		const formData = new FormData(e.currentTarget);
 		const { name, email, password } = Object.fromEntries(formData) as Record<string, string>;
+		const termsAccepted = formData.get("termsAccepted") === "on";
 
 		try {
 			const response = isLogin
 				? await loginUser(email, password)
-				: await registerUser(name, email, password, true);
+				: await registerUser(name, email, password, termsAccepted, true);
 
 			setAuth(response.user, response.accessToken);
 			toast.success(response.message || "Success!");

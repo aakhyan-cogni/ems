@@ -7,11 +7,11 @@ export function login(email: string, password: string) {
 	});
 }
 
-export async function register(name: string, email: string, password: string, loginAfter = false) {
+export async function register(name: string, email: string, password: string, termsAccepted: boolean, loginAfter = false) {
 	if (loginAfter) {
 		return apiFetch("/auth/register", {
 			method: "POST",
-			body: JSON.stringify({ name, email, password }),
+			body: JSON.stringify({ name, email, password, termsAccepted }),
 		})
 			.then(() => {
 				return apiFetch("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
@@ -22,7 +22,7 @@ export async function register(name: string, email: string, password: string, lo
 	}
 	return apiFetch("/auth/register", {
 		method: "POST",
-		body: JSON.stringify({ name, email, password }),
+		body: JSON.stringify({ name, email, password, termsAccepted }),
 	});
 }
 
