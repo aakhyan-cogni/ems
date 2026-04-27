@@ -6,6 +6,53 @@
 
 ---
 
+## Checkpoint Status
+
+**Legend:** ✅ Done · 🟡 In Progress · ⏳ Pending · 🚫 Blocked
+
+The reference LLD (`Event Management System.pdf`) defines five bare-minimum modules: Event Management, User Registration, Ticket Booking, Notifications & Reminders, and Feedback & Ratings. Checkpoint 1 must ship to satisfy the LLD; Checkpoint 3 contains plus-features that are descopable under time pressure.
+
+### Checkpoint 0 — Foundations (auth + consent)  ✅ 2 / 2 done
+- ✅ S2-001 · Consent System — Backend
+- ✅ S2-002 · Consent System — Frontend
+
+### Checkpoint 1 — PDF Bare Minimum  ⏳ 0 / 15 done
+Priority order top-to-bottom. Must ship to satisfy the PDF LLD.
+- ⏳ S2-003 · Admin Role & Endpoints — Backend  *(required by the event-publish state machine)*
+- ⏳ S2-004 · Admin Dashboard — Frontend
+- ⏳ S2-005 · Event Model & Core CRUD — Backend
+- ⏳ S2-006 · Event Search & Public Listing — Backend
+- ⏳ S2-007 · Event Creation & Management — Frontend Integration
+- ⏳ S2-008 · My Events Dashboard & Event Editing — Frontend
+- ⏳ S2-009 · Event Registration (Tickets) — Backend
+- ⏳ S2-010 · Event Registration (Tickets) — Frontend
+- ⏳ S2-015 · File Upload — Backend  *(avatar portion only; event gallery descopable to CP3)*
+- ⏳ S2-016 · File Upload — Frontend  *(avatar portion only; event gallery descopable to CP3)*
+- ⏳ S2-017 · Notification System — Backend
+- ⏳ S2-018 · Notification System — Frontend
+- ⏳ S2-022 · Feedback & Ratings — Backend  *(NEW — added to satisfy PDF Module 4.5)*
+- ⏳ S2-023 · Feedback & Ratings — Frontend  *(NEW — added to satisfy PDF Module 4.5)*
+- ⏳ S2-021 · User Profile — Backend Integration & Subscription Tier
+
+### Checkpoint 2 — Hardening (cross-cutting, run alongside CP1)
+- ⏳ S2-019 · Backend Security Hardening
+- ⏳ S2-020 · Frontend Auth Guards & Route Protection
+
+### Checkpoint 3 — Plus Features (descope first if time runs out)
+- ⏳ S2-011 · Custom Form Builder — Backend
+- ⏳ S2-012 · Custom Form Builder — Frontend
+- ⏳ S2-013 · Team Participation — Backend
+- ⏳ S2-014 · Team Participation — Frontend
+- ⏳ S2-015 (gallery) · Event Image Gallery — Backend continuation of S2-015
+- ⏳ S2-016 (gallery) · Event Image Gallery — Frontend continuation of S2-016
+
+> **Note on S2-015 / S2-016:** The same task body covers both avatar upload (CP1) and event-image gallery (CP3). The avatar portion is bare-minimum; the gallery portion is descopable. Devs should ship avatar first and treat gallery as optional follow-up.
+
+### How to update status
+Devs flip the emoji on their task as they progress: ⏳ → 🟡 (when work starts) → ✅ (when merged). Also bump the per-task `**Status:**` line below. Anyone reading this file should be able to see the project state from the top of the file alone.
+
+---
+
 ## System Design Decisions
 
 These are architectural decisions that every developer must be aware of before picking up tasks.
@@ -110,6 +157,8 @@ Tasks are labelled `S2-XXX`. Each is designed to be completable by one developer
 #### S2-001 · Consent System — Backend
 **Type:** Backend  
 **Depends on:** Nothing  
+**Checkpoint:** 0 (Foundations)  
+**Status:** ✅ Done  
 
 **What to build:**
 - Add fields to the `UserDoc` interface (`server/src/models/user.model.ts`) and the `User` collection: `consentAccepted: boolean` (default `false`), `consentAcceptedAt?: Date`, `consentVersion?: string`. No schema migration needed — MongoDB is schemaless; just ensure service writes default these on insert. *(Already implemented in the current codebase.)*
@@ -129,6 +178,8 @@ Tasks are labelled `S2-XXX`. Each is designed to be completable by one developer
 #### S2-002 · Consent System — Frontend
 **Type:** Frontend  
 **Depends on:** S2-001 (API contract)  
+**Checkpoint:** 0 (Foundations)  
+**Status:** ✅ Done  
 
 **What to build:**
 - Dedicated `ConsentModal` component: full-screen modal (not closable via backdrop click or Escape) that shows the T&C text scrollable area. The "Accept" button is **disabled** until the user scrolls to the bottom of the text.
@@ -152,6 +203,8 @@ Tasks are labelled `S2-XXX`. Each is designed to be completable by one developer
 #### S2-003 · Admin Role & Endpoints — Backend
 **Type:** Backend  
 **Depends on:** Nothing (uses existing auth middleware)  
+**Checkpoint:** 1 (Bare Minimum) — required by event publish state machine  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - The `User` document already has `role: string`. Narrow it to the `Role` union and add a `tier` field. Declare both unions in `server/src/models/user.model.ts`:
@@ -189,6 +242,8 @@ export interface UserDoc {
 #### S2-004 · Admin Dashboard — Frontend
 **Type:** Frontend  
 **Depends on:** S2-003  
+**Checkpoint:** 1 (Bare Minimum)  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - New route `/admin` — redirect to `/login` if not authenticated; redirect to `/dashboard` if authenticated but role is not `ADMIN`.
@@ -214,6 +269,8 @@ export interface UserDoc {
 #### S2-005 · Event Model & Core CRUD — Backend
 **Type:** Backend  
 **Depends on:** Nothing  
+**Checkpoint:** 1 (Bare Minimum) — PDF Module 4.1 Event Management  
+**Status:** ⏳ Pending  
 
 **What to build:**
 
@@ -281,6 +338,8 @@ Endpoints:
 #### S2-006 · Event Search & Public Listing — Backend
 **Type:** Backend  
 **Depends on:** S2-005  
+**Checkpoint:** 1 (Bare Minimum) — PDF Module 4.1 search/filter  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - `GET /api/events` — Public listing. Build a Mongo filter that always includes `{ status: "APPROVED", visibility: { $in: ["PUBLIC", "UNLISTED"] } }`. Never return `"PRIVATE"` events in the listing. Support query params: `?q=` (text search on title + description), `?category=`, `?location=`, `?dateFrom=`, `?dateTo=`, `?page=1`, `?limit=20`. Use `.find(filter).skip().limit()` + `.countDocuments()` for pagination.
@@ -300,6 +359,8 @@ Endpoints:
 #### S2-007 · Event Creation & Management — Frontend Integration
 **Type:** Frontend  
 **Depends on:** S2-005, S2-006  
+**Checkpoint:** 1 (Bare Minimum)  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - Wire `EventCreationForm.tsx` to `POST /api/events` then `POST /api/events/:id/publish`.
@@ -322,6 +383,8 @@ Endpoints:
 #### S2-008 · My Events Dashboard & Event Editing — Frontend
 **Type:** Frontend  
 **Depends on:** S2-005, S2-007  
+**Checkpoint:** 1 (Bare Minimum)  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - Rework the "Events You're Organizing" section in `Dashboard.tsx` to use `GET /api/events/mine`.
@@ -346,6 +409,8 @@ Endpoints:
 #### S2-009 · Event Registration — Backend
 **Type:** Backend  
 **Depends on:** S2-005  
+**Checkpoint:** 1 (Bare Minimum) — PDF Module 4.3 Ticket Booking  
+**Status:** ⏳ Pending  
 
 **What to build:**
 
@@ -396,6 +461,8 @@ Endpoints:
 #### S2-010 · Event Registration — Frontend
 **Type:** Frontend  
 **Depends on:** S2-009  
+**Checkpoint:** 1 (Bare Minimum) — PDF Module 4.3 Ticket Booking  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - On the event detail page (`SingleEvent.tsx` / `Event.tsx`), replace any placeholder with a real **Register** button.
@@ -420,6 +487,8 @@ Endpoints:
 #### S2-011 · Custom Form Builder — Backend
 **Type:** Backend  
 **Depends on:** S2-005 (event model with `formSchemaId`)  
+**Checkpoint:** 3 (Plus Feature) — descopable  
+**Status:** ⏳ Pending  
 
 **What to build:**
 
@@ -472,6 +541,8 @@ Form submission validation (used in S2-009's register endpoint):
 #### S2-012 · Custom Form Builder — Frontend
 **Type:** Frontend  
 **Depends on:** S2-011  
+**Checkpoint:** 3 (Plus Feature) — descopable  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - Form builder UI accessible from the Event editing page (a new "Registration Form" tab, shown only to the organizer).
@@ -498,6 +569,8 @@ Form submission validation (used in S2-009's register endpoint):
 #### S2-013 · Team Participation — Backend
 **Type:** Backend  
 **Depends on:** S2-009 (Registration model)  
+**Checkpoint:** 3 (Plus Feature) — descopable  
+**Status:** ⏳ Pending  
 
 **What to build:**
 
@@ -549,6 +622,8 @@ Endpoints:
 #### S2-014 · Team Participation — Frontend
 **Type:** Frontend  
 **Depends on:** S2-013  
+**Checkpoint:** 3 (Plus Feature) — descopable  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - On the event detail page, if `event.isTeamEvent === true`, replace the individual Register button with a **Team Registration** section:
@@ -573,6 +648,8 @@ Endpoints:
 #### S2-015 · File Upload — Backend (Avatar + Event Images)
 **Type:** Backend  
 **Depends on:** Nothing (Multer already configured)  
+**Checkpoint:** 1 (avatar — Bare Minimum) / 3 (event-image gallery — Plus Feature)  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - `POST /api/user/avatar` (auth) — Upload profile avatar. Accept: `image/jpeg`, `image/png`, `image/webp`. Max size: 2MB. Store in `server/public/avatars/`. Return the public URL. Update `User.avatar` in DB.
@@ -591,6 +668,8 @@ Endpoints:
 #### S2-016 · File Upload — Frontend (Avatar + Event Images)
 **Type:** Frontend  
 **Depends on:** S2-015  
+**Checkpoint:** 1 (avatar — Bare Minimum) / 3 (event-image gallery — Plus Feature)  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - **Profile avatar upload:** In `BasicProfileInfo.tsx`, clicking the avatar opens a file picker. Validate type (JPEG/PNG/WebP) and size (<2MB) client-side. Show a preview before uploading. On confirm, call `POST /api/user/avatar`. Update `useAuthStore` with the new avatar URL. Show progress indicator.
@@ -611,6 +690,8 @@ Endpoints:
 #### S2-017 · Notification System — Backend
 **Type:** Backend  
 **Depends on:** S2-003 (approve/reject), S2-009 (registration)  
+**Checkpoint:** 1 (Bare Minimum) — PDF Module 4.4 Notifications & Reminders  
+**Status:** ⏳ Pending  
 
 **What to build:**
 
@@ -668,6 +749,8 @@ Endpoints:
 #### S2-018 · Notification System — Frontend
 **Type:** Frontend  
 **Depends on:** S2-017  
+**Checkpoint:** 1 (Bare Minimum) — PDF Module 4.4 Notifications & Reminders  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - Wire `NotificationPage.tsx` to `GET /api/notifications`. Render notifications in a list with type icons:
@@ -694,6 +777,8 @@ Endpoints:
 #### S2-019 · Backend Security Hardening
 **Type:** Backend  
 **Depends on:** Nothing (can start immediately, apply as other tasks land)  
+**Checkpoint:** 2 (Hardening) — cross-cutting, run alongside CP1  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - **Input validation:** Install `zod`. Create a `validate(schema)` middleware factory. Apply Zod schemas to request bodies for: register, login, event create/update, form schema create, team create, invite. Return `400` with a structured error list on validation failure.
@@ -718,6 +803,8 @@ Endpoints:
 #### S2-020 · Frontend Auth Guards & Route Protection
 **Type:** Frontend  
 **Depends on:** Nothing  
+**Checkpoint:** 2 (Hardening) — cross-cutting, run alongside CP1  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - **`ProtectedRoute` component:** Wraps routes that require authentication. If `!isAuthenticated`, redirect to `/login` and store the intended path in location state so the user is redirected back after login.
@@ -742,6 +829,8 @@ Endpoints:
 #### S2-021 · User Profile — Backend Integration & Subscription Tier
 **Type:** Frontend  
 **Depends on:** S2-015 (avatar upload)  
+**Checkpoint:** 1 (Bare Minimum) — PDF Module 4.2 Manage user profiles  
+**Status:** ⏳ Pending  
 
 **What to build:**
 - Wire all profile tabs to the real API:
@@ -757,6 +846,86 @@ Endpoints:
 - Uploading a new avatar from the profile page updates the avatar globally.
 - Subscription plan UI shows the user's current tier correctly.
 - No dummy/hardcoded data remains visible on the profile page.
+
+---
+
+### Module 11 — Feedback & Ratings
+
+> **PDF reference:** Module 4.5 Feedback and Ratings — collect user feedback and ratings for events, display average ratings. This module was missing from earlier revisions of this plan and is added to satisfy the LLD.
+
+---
+
+#### S2-022 · Feedback & Ratings — Backend
+**Type:** Backend  
+**Depends on:** S2-005 (Event), S2-009 (Registration)  
+**Checkpoint:** 1 (Bare Minimum) — PDF Module 4.5 Feedback and Ratings  
+**Status:** ⏳ Pending  
+
+**What to build:**
+
+Declare `server/src/models/feedback.model.ts`:
+
+```ts
+export interface FeedbackDoc {
+    _id?: ObjectId;
+    eventId: ObjectId;          // ref to Event._id
+    userId: ObjectId;           // ref to User._id
+    rating: number;             // 1..5
+    comment?: string | null;
+    submittedAt: Date;
+    updatedAt: Date;
+}
+
+export const FEEDBACK_COLLECTION = "Feedback";
+```
+
+Indexes (in `mongo.ts::ensureIndexes`):
+- `{ eventId: 1, userId: 1 }` with `{ unique: true }` — enforces "one feedback per (event, user)" at the DB level.
+- `{ eventId: 1 }` — for aggregation of average rating per event.
+
+Add a `feedback()` collection getter in `server/src/lib/mongo.ts` alongside `users()` / `events()` / `registrations()`.
+
+Endpoints:
+- `POST /api/events/:id/feedback` (auth + consentCheck) — Submit feedback. Validate: event status is `"APPROVED"`, event date is in the past (`event.date < now()`), requester has a `Registration` doc with `status: "CONFIRMED"` for this event, no prior feedback exists for this (eventId, userId) pair. Body: `{ rating: number (1..5), comment?: string }`. On `MongoServerError` code 11000 (dup-key), return `409`.
+- `GET /api/events/:id/feedback` — Public. Returns `{ items: [...], avgRating: number, totalRatings: number }`. Use an aggregation pipeline: `$match { eventId }`, then `$lookup` on User for the reviewer's display name, then `$facet` to compute `avgRating` and the paginated list in one round-trip.
+- `GET /api/feedback/mine` (auth) — Current user's submitted feedback across all events. Joins to Event for event title.
+- `PATCH /api/events/:id/feedback` (auth) — Edit own feedback within 7 days of submission. Body: `{ rating?, comment? }`.
+- `DELETE /api/events/:id/feedback` (auth) — Delete own feedback within 7 days. Admin can delete any feedback.
+
+Update event listing/detail responses (`event.service.ts::getAllEvents`, `getEventById`, the `fromDoc` mapper) to include `avgRating` and `totalRatings` per event — pull these via a `$lookup` on the Feedback collection in the aggregation pipeline.
+
+**Acceptance criteria:**
+- User who didn't register (or whose registration is `CANCELLED`) cannot submit feedback (returns `403`).
+- User cannot submit feedback before the event end date (returns `403 EVENT_NOT_ENDED`).
+- User cannot submit two feedbacks for the same event (returns `409 DUPLICATE_FEEDBACK`).
+- `GET /api/events/:id/feedback` returns accurate average rating and totalRatings count.
+- Public event listing (`GET /api/events`) includes `avgRating` and `totalRatings` per event card.
+- Admin can delete any feedback; non-admin cannot delete other users' feedback.
+
+---
+
+#### S2-023 · Feedback & Ratings — Frontend
+**Type:** Frontend  
+**Depends on:** S2-022  
+**Checkpoint:** 1 (Bare Minimum) — PDF Module 4.5 Feedback and Ratings  
+**Status:** ⏳ Pending  
+
+**What to build:**
+- On the event detail page (`SingleEvent.tsx` / `Event.tsx`), add a **Feedback section** below the event description:
+  - **Header:** average rating display, e.g. `⭐ 4.3 / 5 (12 reviews)`. Hidden if `totalRatings === 0` (show "Be the first to leave feedback").
+  - **Submit form** (visible only when event has ended AND user has a confirmed registration AND has not already submitted): 5-star rating widget (radio-style, hover highlight) + optional comment textarea + Submit button. Wire to `POST /api/events/:id/feedback`. On success, replace form with the user's submitted feedback view.
+  - **My feedback view** (visible if the user has already submitted): show their rating, comment, submitted date, and an "Edit" button that re-opens the form prefilled (calls `PATCH`) and a "Delete" button (calls `DELETE`) — both only enabled within 7 days of submission.
+  - **Feedback list:** scrollable list of all feedback fetched from `GET /api/events/:id/feedback` with reviewer display name, star count, comment, submitted date. Paginate or "Load more" if > 10.
+- On event cards in `Global_Event.tsx` listings, show a small rating indicator next to event metadata: `⭐ 4.3 (12)`. Render only if `totalRatings > 0`.
+- **Profile dashboard:** Add a new "My Reviews" tab listing feedback the user has submitted (via `GET /api/feedback/mine`), each row linking to the event detail page.
+
+**Acceptance criteria:**
+- Star widget allows 1–5 selection; submit button is disabled until a rating is chosen.
+- Submitting feedback updates the average rating display immediately (optimistic update or refetch).
+- After submission, the form is replaced by the user's submitted feedback view.
+- "Edit" and "Delete" buttons are hidden once 7 days have passed since submission.
+- User cannot see a submit form for an event they didn't attend (form hidden, replaced with "Only registered attendees can leave feedback").
+- Average rating on event listing cards reflects backend `avgRating` accurately.
 
 ---
 
@@ -777,21 +946,23 @@ These are real requirements but descoped to keep Sprint 2 shippable. They should
 
 ## Priority Order for Sprint 2
 
-Pick up tasks in this order to minimize blocking dependencies:
+Pick up tasks in this order to minimize blocking dependencies. Waves map directly onto the Checkpoint Status dashboard at the top of this file — finish all of CP1 (Bare Minimum) before touching CP3 (Plus Features).
 
-| Wave | Tasks | Why |
-|------|-------|-----|
-| 1 (Day 1–3) | S2-001, S2-003, S2-005, S2-006, S2-019 | Foundation — unblocks almost everything else |
-| 2 (Day 3–6) | S2-002, S2-004, S2-007, S2-009, S2-011, S2-015 | Core features enabled by Wave 1 |
-| 3 (Day 6–10) | S2-008, S2-010, S2-012, S2-013, S2-016, S2-017, S2-020 | Full feature set |
-| 4 (Day 10–12) | S2-014, S2-018, S2-021 | Polish and wiring |
+| Wave | Checkpoint | Tasks | Why |
+|------|------------|-------|-----|
+| 1 | CP1 + CP2 backend | S2-003, S2-005, S2-006, S2-009, S2-015 *(avatar)*, S2-017, S2-019, S2-022 | Bare-minimum backend foundation; admin needed for the publish state machine; feedback model is part of bare-minimum |
+| 2 | CP1 + CP2 frontend | S2-004, S2-007, S2-010, S2-016 *(avatar)*, S2-018, S2-020, S2-023 | Bare-minimum frontend wiring including admin dashboard for approvals and feedback UI |
+| 3 | CP1 polish | S2-008, S2-021 | My-events dashboard + profile integration |
+| 4 | CP3 (only if time) | S2-011, S2-012, S2-013, S2-014, S2-015 *(gallery)*, S2-016 *(gallery)* | Plus-features in descopable order — descope first if the bare minimum is at risk |
 
-**Quick-start for each dev (Day 1 pick-up, no dependencies):**
-- Dev 1 → S2-001 (Consent backend)
-- Dev 2 → S2-003 (Admin backend)
-- Dev 3 → S2-005 (Event CRUD backend)
-- Dev 4 → S2-019 (Security hardening backend)
-- Dev 5 → S2-020 (Frontend auth guards — unblocks all frontend wiring)
+**Quick-start for each dev (Day 1 pick-up, no dependencies — all CP1 tasks):**
+- Dev 1 → S2-003 (Admin backend) — unblocks event publish/approval flow
+- Dev 2 → S2-005 (Event CRUD backend) — core entity for everything else
+- Dev 3 → S2-019 (Security hardening backend) — cross-cutting, applies as other tasks land
+- Dev 4 → S2-020 (Frontend auth guards) — unblocks all frontend wiring
+- Dev 5 → S2-022 (Feedback backend) once S2-005 lands — fills the PDF gap
+
+> **Note:** S2-001 / S2-002 (Consent) are already complete and intentionally not in the Day-1 list.
 
 ---
 
