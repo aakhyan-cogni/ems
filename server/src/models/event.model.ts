@@ -1,5 +1,9 @@
 import type { ObjectId } from "mongodb";
 
+
+export type EventStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+
 export interface EventDoc {
 	_id?: ObjectId;
 	title: string;
@@ -11,9 +15,10 @@ export interface EventDoc {
 	location: string;
 	price: number;
 	capacity: number;
-
 	organizerId: ObjectId;
 	organizerEmail: string;
+
+	status: EventStatus;
 
 	createdAt: Date;
 	updatedAt: Date;
