@@ -10,7 +10,8 @@
 		"db:up": "mongod --port 27018 --dbpath \"./mongo-data\" --replSet rs0",
 		"dev": "tsup --watch --onSuccess \"node --no-warnings dist/index.js\"",
 		"build": "tsup",
-		"start": "node dist/index.js"
+		"db:seed": "npm run build && node dist/seed.js",
+		"start": "npm run db:seed && node dist/index.js"
 	},
 	"dependencies": {
 		"bcryptjs": "^3.0.3",

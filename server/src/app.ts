@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { authRouter, consentRouter, eventRouter, userRouter } from "@/routes";
+import { adminRouter } from "./routes/index.js";
+// ...
 
 const app = express();
 
@@ -22,6 +24,7 @@ app.use("/api/events", eventRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/consent", consentRouter);
+app.use("/api/admin", adminRouter);
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response) => {

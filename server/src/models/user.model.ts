@@ -2,6 +2,10 @@ import type { ObjectId } from "mongodb";
 
 export type Gender = "Male" | "Female" | "Others";
 
+export type Role = "USER" | "ADMIN";
+
+export type Tier= "FREE" | "PRO" | "ULTIMATE";
+
 export interface UserDoc {
 	_id?: ObjectId;
 	email: string;
@@ -21,7 +25,9 @@ export interface UserDoc {
 	bio?: string | null;
 
 	refreshToken?: string | null;
-	role?: string | null;
+	role: Role;
+
+	tier: Tier;
 
 	consentAccepted: boolean;
 	consentAcceptedAt?: Date | null;

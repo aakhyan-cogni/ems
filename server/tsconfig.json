@@ -14,5 +14,5 @@
 		}
 	},
 	"exclude": ["tsup.config.ts", "node_modules", "dist"],
-	"include": ["src/**/*"]
+	"include": ["src/**/*", "src/seed.ts"]
 }
