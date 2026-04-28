@@ -6,18 +6,19 @@ export async function getUserById(id: string): Promise<User | null> {
 	const col = await users();
 	const doc = await col.findOne({ _id: new ObjectId(id) });
 
-	if (!doc) return null;
+	if(!doc)
+		return null;
 
-	if (!doc.role || !doc.tier) {
+
+	if(!doc.role || ! doc.tier){
+
 		col.updateOne(
 			{ _id: new ObjectId(id) },
-			{
-				$set: {
-					role: doc.role ?? "USER",
-					tier: doc.tier ?? "FREE",
-					updatedAt: new Date(),
-				},
-			},
+			{ $set:{
+				role : doc.role ?? "USER",
+				tier : doc.tier ?? "FREE",
+				updatedAt : new Date()
+			}},
 		);
 
 		doc.role = doc.role ?? "USER";
