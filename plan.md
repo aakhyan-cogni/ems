@@ -204,7 +204,7 @@ Tasks are labelled `S2-XXX`. Each is designed to be completable by one developer
 **Type:** Backend  
 **Depends on:** Nothing (uses existing auth middleware)  
 **Checkpoint:** 1 (Bare Minimum) — required by event publish state machine  
-**Status:** 🟡 In Progress  
+**Status:** ✅ Done  
 
 **What to build:**
 - The `User` document already has `role: string`. Narrow it to the `Role` union and add a `tier` field. Declare both unions in `server/src/models/user.model.ts`:
