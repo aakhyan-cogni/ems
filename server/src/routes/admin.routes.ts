@@ -1,20 +1,16 @@
 import { Router } from "express";
-import { authenticate } from "../middleware/auth.middleware.js";
-import { adminOnly } from "../middleware/admin.middleware.js";
-import * as AdminController from "../controllers/admin.controller.js";
+import { authenticate, authorize } from "@/middleware/auth.middleware";
+import * as AdminController from "@/controllers/admin.controller";
 
-const router = Router();
+export const adminRouter = Router();
 
-// All admin routes require authentication + admin role
-router.use(authenticate, adminOnly);
+const adminOnlyMiddleware = [authenticate, authorize(["ADMIN"])];
+adminRouter.use(...adminOnlyMiddleware);
 
-router.get("/users", AdminController.listUsers);
-router.patch("/users/:id/role", AdminController.updateUserRole);
+adminRouter.get("/users", AdminController.listUsers);
+adminRouter.get("/events", AdminController.listEvents);
+adminRouter.get("/stats", AdminController.getStats);
 
-router.get("/events", AdminController.listEvents);
-router.patch("/events/:id/approve", AdminController.approveEvent);
-router.patch("/events/:id/reject", AdminController.rejectEvent);
-
-router.get("/stats", AdminController.getStats);
-
-export default router;
+adminRouter.patch("/users/:id/role", AdminController.updateUserRole);
+adminRouter.patch("/events/:id/approve", AdminController.approveEvent);
+adminRouter.patch("/events/:id/reject", AdminController.rejectEvent);

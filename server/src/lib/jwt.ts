@@ -1,11 +1,11 @@
-import type { User } from "@/models";
+import type { Role, User } from "@/models";
 import jwt from "jsonwebtoken";
 import { assert } from "node:console";
 
 export interface TokenPayload {
 	userId: string;
 	email: string;
-	role: string;
+	role: Role;
 }
 
 const ACCESS_SECRET = process.env.ACCESS_TOKEN_SECRET;
@@ -68,7 +68,7 @@ export const generateTokens = (user: BasicUser & Partial<User>) => {
 	const payload: TokenPayload = {
 		userId: user.id,
 		email: user.email,
-		role: user.role || "user",
+		role: user.role || "USER" as Role,
 	};
 
 	return {
@@ -80,5 +80,5 @@ export const generateTokens = (user: BasicUser & Partial<User>) => {
 interface BasicUser {
 	id: string;
 	email: string;
-	role?: string | null;
+	role?: Role | null;
 }

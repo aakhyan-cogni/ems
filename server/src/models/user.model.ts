@@ -4,7 +4,7 @@ export type Gender = "Male" | "Female" | "Others";
 
 export type Role = "USER" | "ADMIN";
 
-export type Tier= "FREE" | "PRO" | "ULTIMATE";
+export type Tier = "FREE" | "PRO" | "ULTIMATE";
 
 export interface UserDoc {
 	_id?: ObjectId;
