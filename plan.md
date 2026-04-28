@@ -18,7 +18,7 @@ The reference LLD (`Event Management System.pdf`) defines five bare-minimum modu
 
 ### Checkpoint 1 — PDF Bare Minimum  ⏳ 0 / 15 done
 Priority order top-to-bottom. Must ship to satisfy the PDF LLD.
-- ⏳ S2-003 · Admin Role & Endpoints — Backend  *(required by the event-publish state machine)*
+- 🟡 S2-003 · Admin Role & Endpoints — Backend  *(required by the event-publish state machine)*
 - ⏳ S2-004 · Admin Dashboard — Frontend
 - ⏳ S2-005 · Event Model & Core CRUD — Backend
 - ⏳ S2-006 · Event Search & Public Listing — Backend
@@ -204,7 +204,7 @@ Tasks are labelled `S2-XXX`. Each is designed to be completable by one developer
 **Type:** Backend  
 **Depends on:** Nothing (uses existing auth middleware)  
 **Checkpoint:** 1 (Bare Minimum) — required by event publish state machine  
-**Status:** ⏳ Pending  
+**Status:** 🟡 In Progress  
 
 **What to build:**
 - The `User` document already has `role: string`. Narrow it to the `Role` union and add a `tier` field. Declare both unions in `server/src/models/user.model.ts`:
