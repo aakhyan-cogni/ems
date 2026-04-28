@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "@/lib";
+import { Role } from "@/models";
 
 /**
  * Middleware function to authenticate incoming requests using JWT access tokens. This function checks for the presence of an Authorization header with a Bearer token, verifies the token's validity, and if valid, attaches the decoded token payload to the request object for use in subsequent middleware or route handlers. If the token is missing, invalid, or expired, it returns a 401 Unauthorized response with an appropriate error message.
@@ -30,7 +31,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
  * @param roles Array of allowed roles that can access the route or resource
  * @returns Middleware function that checks the user's role against the allowed roles and either authorizes the user or returns a 403 Forbidden response
  */
-export async function authorize(roles: string[]) {
+export function authorize(roles: Role[]) {
 	return (req: Request, res: Response, next: NextFunction) => {
 		if (!req.user || !roles.includes(req.user.role)) {
 			return res.status(403).json({ message: "Forbidden: You do not have permission" });

@@ -71,20 +71,23 @@ export async function createUser(data: Pick<UserDoc, "email" | "password" | "nam
 		password: data.password,
 		name: data.name,
 		avatar: "default.png",
-		role: "user",
+		role: "USER",
+		tier: "FREE",
 		consentAccepted: data.termsAccepted,
 		consentAcceptedAt: data.termsAccepted ? now : null,
 		consentVersion: currentVersion,
 		createdAt: now,
 		updatedAt: now,
 	};
+
 	const result = await col.insertOne(insertDoc);
+
 	return {
 		id: result.insertedId.toString(),
 		email: data.email,
 		name: data.name,
-		role: "user",
+		role: "USER",
 		consentAccepted: data.termsAccepted,
 		consentVersion: currentVersion,
-	};
+	} as User;
 }

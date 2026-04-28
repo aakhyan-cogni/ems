@@ -9,6 +9,8 @@ declare global {
 			ACCESS_TOKEN_EXPIRY: string;
 			REFRESH_TOKEN_EXPIRY: string;
 			PORT?: string;
+			ADMIN_EMAIL: string;
+			ADMIN_PASSWORD: string;
 		}
 	}
 }
