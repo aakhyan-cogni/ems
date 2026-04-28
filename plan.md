@@ -243,7 +243,7 @@ export interface UserDoc {
 **Type:** Frontend  
 **Depends on:** S2-003  
 **Checkpoint:** 1 (Bare Minimum)  
-**Status:** ⏳ Pending  
+**Status:** 🟡 In Progress
 
 **What to build:**
 - New route `/admin` — redirect to `/login` if not authenticated; redirect to `/dashboard` if authenticated but role is not `ADMIN`.
