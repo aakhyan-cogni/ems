@@ -4,10 +4,10 @@ import { motion } from "motion/react";
 import { apiFetch } from "../../lib/api";
 
 const Users = () => {
-	const [userOverview, setUsers] = useState<User[]>([]);
+	const [baseUsers, setBaseUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [page, setPage] = useState(1);
-	let usersRes = null;
+	const [search, setSearch] = useState("");
 
 	const profileImg = `http://localhost:5000/uploads/avatars/`;
 
@@ -16,11 +16,16 @@ const Users = () => {
 			try {
 				setLoading(true);
 
-				usersRes = await apiFetch("/admin/users", { method: "GET" }, { page: page.toString(), limit: "5" });
+				const usersRes = await apiFetch(
+					"/admin/users",
+					{ method: "GET" },
+					{ page: page.toString(), limit: "5" },
+				);
+				const fetchedUsers = usersRes.users ?? usersRes;
 
-				setUsers(usersRes.users ?? usersRes);
+				setBaseUsers(fetchedUsers);
 
-				if (usersRes.users.length <= 0) {
+				if (fetchedUsers.length <= 0 && page > 1) {
 					setPage((prev) => prev - 1);
 				}
 			} catch (err) {
@@ -31,10 +36,16 @@ const Users = () => {
 		};
 
 		fetchData();
-		return () => {
-			usersRes = null;
-		};
 	}, [page]);
+
+	const displayedUsers =
+		search === ""
+			? baseUsers
+			: baseUsers.filter((u) =>
+					(u.email.toString() + u.name.toString() + u.role?.toString())
+						.toLowerCase()
+						.includes(search.toLowerCase()),
+				);
 
 	if (loading) {
 		return (
@@ -55,6 +66,13 @@ const Users = () => {
 				<div className="d-flex justify-content-between align-items-center mb-4">
 					<h3 className="fw-bold mb-0">User Stats</h3>
 					<div className="d-flex justify-content-around gap-3 align-items-center mb-4">
+						<input
+							className="form-control w-auto"
+							type="search"
+							placeholder="Search"
+							value={search}
+							onChange={(event) => setSearch(event.target.value)}
+						/>
 						<motion.button
 							whileTap={{ scale: 0.95 }}
 							onClick={() => {
@@ -83,9 +101,10 @@ const Users = () => {
 					</div>
 				</div>
 
-				{userOverview.length > 0 ? (
+				{/* 5. Map over 'displayedUsers' instead of the raw state */}
+				{displayedUsers.length > 0 ? (
 					<div className="row g-4">
-						{userOverview.map((user) => (
+						{displayedUsers.map((user) => (
 							<div key={user.id} className="col-md-6 col-lg-4">
 								<div className="card shadow-sm rounded-4 p-3">
 									<div className="d-flex align-items-center gap-3">
@@ -109,7 +128,7 @@ const Users = () => {
 					</div>
 				) : (
 					<div className="text-center p-5 rounded-4 border border-dashed">
-						<p className="text-muted mb-0">No users registered till now.</p>
+						<p className="text-muted mb-0">No users found.</p>
 					</div>
 				)}
 			</section>

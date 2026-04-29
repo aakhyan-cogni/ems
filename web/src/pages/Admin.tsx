@@ -11,12 +11,19 @@ const Admin = () => {
 	const user = useAuthStore((s) => s.user)!;
 
 	useEffect(() => {
-		if (!isAuthenticated) navigate("/login");
+		if (!isAuthenticated || !user || !user.name) {
+			navigate("/login");
+			return;
+		}
 		if (user.role && user.role !== "ADMIN") navigate("/dashboard");
-	}, []);
+	}, [user, isAuthenticated]);
 
 	const [active, setActive] = useState("overview");
 	const [hover, setHover] = useState("");
+
+	if (!user || !user.name) {
+		return null;
+	}
 
 	const viewEvents = () => {
 		setActive("events");

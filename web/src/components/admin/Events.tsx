@@ -11,7 +11,9 @@ const Events = () => {
 	const [eventsOverview, setEvents] = useState<Event[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [page, setPage] = useState(1);
+	const [eventStatus, setEventStatus] = useState("ALL");
 	let eventsRes = null;
+	const [search, setSearch] = useState("");
 
 	const handleEventClick = (event: Event) => {
 		navigate(`/events?q=${event.id}`);
@@ -24,8 +26,18 @@ const Events = () => {
 			try {
 				setLoading(true);
 
-				eventsRes = await apiFetch("/admin/events", { method: "GET" }, { page: page.toString(), limit: "20" });
-
+				if (eventStatus === "ALL")
+					eventsRes = await apiFetch(
+						"/admin/events",
+						{ method: "GET" },
+						{ page: page.toString(), limit: "20" },
+					);
+				else
+					eventsRes = await apiFetch(
+						"/admin/events",
+						{ method: "GET" },
+						{ page: page.toString(), limit: "20", status: eventStatus },
+					);
 				setEvents(eventsRes.events ?? eventsRes);
 
 				if (eventsRes.events.length <= 0) {
@@ -39,11 +51,7 @@ const Events = () => {
 		};
 
 		fetchData();
-
-		return () => {
-			eventsRes = null;
-		};
-	}, [page]);
+	}, [page, eventStatus]);
 
 	if (loading) {
 		return (
@@ -57,13 +65,51 @@ const Events = () => {
 
 	if (page <= 0) setPage(1);
 
+	const displayEvents =
+		search === ""
+			? eventsOverview
+			: eventsOverview.filter((event) => {
+					return (
+						event.category.toString() +
+						event.description.toString() +
+						event.location.toString() +
+						event.price.toString() +
+						event.title.toString() +
+						event.organizerEmail.toString()
+					)
+						.toLowerCase()
+						.includes(search.toLowerCase());
+				});
+
 	return (
 		<div className="container">
 			{/* Event Stats */}
 			<section className="mb-5">
 				<div className="d-flex justify-content-between align-items-center mb-4">
 					<h3 className="fw-bold mb-0">Event Stats</h3>
+
 					<div className="d-flex justify-content-around gap-3 align-items-center mb-4">
+						<input
+							className="form-control w-auto"
+							type="search"
+							placeholder="Search"
+							value={search}
+							onChange={(event) => {
+								setSearch(event.target.value);
+							}}
+						/>
+						<select
+							className="form-control w-auto"
+							value={eventStatus}
+							onChange={(event) => {
+								setEventStatus(event.target.value);
+							}}
+						>
+							<option value="ALL">All</option>
+							<option value="PENDING">Pending</option>
+							<option value="APPROVED">Approved</option>
+							<option value="REJECTED">Rejected</option>
+						</select>
 						<motion.button
 							whileTap={{ scale: 0.95 }}
 							onClick={() => {
@@ -92,9 +138,9 @@ const Events = () => {
 					</div>
 				</div>
 
-				{eventsOverview.length > 0 ? (
+				{displayEvents.length > 0 ? (
 					<div className="row g-4">
-						{eventsOverview.map((event) => (
+						{displayEvents.map((event) => (
 							<div key={event.id} className="col-md-6 col-lg-4">
 								<EventCard event={event} onClick={handleEventClick} />
 							</div>
