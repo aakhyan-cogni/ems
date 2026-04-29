@@ -1,14 +1,38 @@
-import { useState } from "react";
-import Dashboard from "./Dashboard/Dashboard";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import PersonalContent from "./Dashboard/Personal_Info_Dashboard/PersonalConent";
-import PaymentContent from "./Dashboard/Payment_Info_Dashboard/PaymentContent";
+import { useNavigate } from "react-router";
+import Overview from "../components/admin/Overview";
+import Events from "../components/admin/Events";
+import Users from "../components/admin/Users";
 
-export default function ProfileLayout() {
-	const [active, setActive] = useState("dashboard");
+const Admin = () => {
+	const navigate = useNavigate();
+	const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+	const user = useAuthStore((s) => s.user)!;
+
+	useEffect(() => {
+		if (!isAuthenticated || !user || !user.name) {
+			navigate("/login");
+			return;
+		}
+		if (user.role && user.role !== "ADMIN") navigate("/dashboard");
+	}, [user, isAuthenticated]);
+
+	const [active, setActive] = useState("overview");
 	const [hover, setHover] = useState("");
 
-	const user = useAuthStore((s) => s.user)!;
+	if (!user || !user.name) {
+		return null;
+	}
+
+	const viewEvents = () => {
+		setActive("events");
+	};
+
+	const viewUsers = () => {
+		setActive("users");
+	};
+
 	const now = new Date().getHours();
 	const greeting = now > 5 && now < 12 ? "morning" : now < 17 ? "afternoon" : "evening";
 
@@ -24,19 +48,19 @@ export default function ProfileLayout() {
 
 						<nav className="nav nav-pills flex-wrap flex-lg-column py-2">
 							<div className="nav-item d-flex">
-								{/* <NavButton id="dashboard" label="Dashboard" icon={"🗓️"}/> */}
+								{/* <NavButton id="overview" label="overview" icon={"🗓️"}/> */}
 								<button
 									className={`btn outline-none decoration m-1 mb-0 ms-2 text-start px-3 pt-2 border-none `}
-									onClick={() => setActive("dashboard")}
-									aria-current={active === "dashboard" ? "page" : undefined}
-									onMouseOver={() => setHover("dashboard")}
+									onClick={() => setActive("overview")}
+									aria-current={active === "overview" ? "page" : undefined}
+									onMouseOver={() => setHover("overview")}
 									onMouseOut={() => setHover("")}
 								>
-									<span className="me-2">{"🗓️"}</span>
-									{"Dashboard"}
+									<span className="me-2">{"👀"}</span>
+									{"Overview"}
 								</button>
 								<div
-									className={`rouded-3 rounded-top rounded-bottom ${active === "dashboard" ? "bg-primary" : ""} my-2`}
+									className={`rouded-3 rounded-top rounded-bottom ${active === "overview" ? "bg-primary" : ""} my-2`}
 									style={{
 										marginLeft: "auto",
 										width: "5px",
@@ -48,7 +72,7 @@ export default function ProfileLayout() {
 								</div>
 							</div>
 							<div
-								className={`  d-none d-lg-block rouded-2 rounded-start rounded-end ${hover === "dashboard" ? "bg-primary" : ""} overflow-hidden ms-3`}
+								className={`  d-none d-lg-block rouded-2 rounded-start rounded-end ${hover === "overview" ? "bg-primary" : ""} overflow-hidden ms-3`}
 								style={{
 									width: "70%",
 									height: "2px",
@@ -59,18 +83,18 @@ export default function ProfileLayout() {
 								as
 							</div>
 							<div className="nav-item d-flex">
-								{/* <NavButton id="personal" label="Personal Details" icon={"👤"}/> */}
+								{/* <NavButton id="events" label="events Details" icon={"💰"}/> */}
 								<button
 									className={`btn m-1 ms-2 text-start px-3 py-2 border-none`}
-									onClick={() => setActive("personal")}
-									onMouseOver={() => setHover("personal")}
+									onClick={() => setActive("events")}
+									onMouseOver={() => setHover("events")}
 									onMouseOut={() => setHover("")}
 								>
-									<span className="me-2">{"👤"}</span>
-									{"Personal Details"}
+									<span className="me-2">{"📢"}</span>
+									{"Events"}
 								</button>
 								<div
-									className={`rouded-3 rounded-top rounded-bottom ${active === "personal" ? "bg-primary" : ""} my-2`}
+									className={`rouded-3 rounded-top rounded-bottom ${active === "events" ? "bg-primary" : ""} my-2`}
 									style={{
 										marginLeft: "auto",
 										width: "5px",
@@ -82,9 +106,9 @@ export default function ProfileLayout() {
 								</div>
 							</div>
 							<div
-								className={`d-none d-lg-block ${hover === "personal" ? "bg-primary" : ""} overflow-hidden ms-3`}
+								className={`d-none d-lg-block ${hover === "events" ? "bg-primary" : ""} overflow-hidden ms-3`}
 								style={{
-									width: "80%",
+									width: "65%",
 									height: "2px",
 									backgroundColor: "transparent",
 									color: "transparent",
@@ -93,18 +117,18 @@ export default function ProfileLayout() {
 								as
 							</div>
 							<div className="nav-item d-flex">
-								{/* <NavButton id="payment" label="Payment Details" icon={"💰"}/> */}
+								{/* <NavButton id="users" label="users Details" icon={"👤"}/> */}
 								<button
 									className={`btn m-1 ms-2 text-start px-3 py-2 border-none`}
-									onClick={() => setActive("payment")}
-									onMouseOver={() => setHover("payment")}
+									onClick={() => setActive("users")}
+									onMouseOver={() => setHover("users")}
 									onMouseOut={() => setHover("")}
 								>
-									<span className="me-2">{"💰"}</span>
-									{"Payment Details"}
+									<span className="me-2">{"👥"}</span>
+									{"Users"}
 								</button>
 								<div
-									className={`rouded-3 rounded-top rounded-bottom ${active === "payment" ? "bg-primary" : ""} my-2`}
+									className={`rouded-3 rounded-top rounded-bottom ${active === "users" ? "bg-primary" : ""} my-2`}
 									style={{
 										marginLeft: "auto",
 										width: "5px",
@@ -116,9 +140,9 @@ export default function ProfileLayout() {
 								</div>
 							</div>
 							<div
-								className={`d-none d-lg-block ${hover === "payment" ? "bg-primary" : ""} overflow-hidden ms-3`}
+								className={`d-none d-lg-block ${hover === "users" ? "bg-primary" : ""} overflow-hidden ms-3`}
 								style={{
-									width: "80%",
+									width: "65%",
 									height: "2px",
 									backgroundColor: "transparent",
 									color: "transparent",
@@ -144,13 +168,15 @@ export default function ProfileLayout() {
 				<main className="col-12 col-md-9 col-lg-10 p-3">
 					<div className="card shadow-sm h-100">
 						<div className="card-body">
-							{active === "dashboard" && <Dashboard />}
-							{active === "personal" && <PersonalContent />}
-							{active === "payment" && <PaymentContent />}
+							{active === "overview" && <Overview viewEventsFn={viewEvents} viewUsersFn={viewUsers} />}
+							{active === "users" && <Users />}
+							{active === "events" && <Events />}
 						</div>
 					</div>
 				</main>
 			</div>
 		</div>
 	);
-}
+};
+
+export default Admin;

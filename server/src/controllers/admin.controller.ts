@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as AdminService from "@/services/admin.service";
-import type { Role } from "@/models";
+import type { EventStatus, Role } from "@/models";
 
 export async function listUsers(req: Request, res: Response) {
 	try {
@@ -42,7 +42,7 @@ export async function listEvents(req: Request, res: Response) {
 	try {
 		const page = parseInt(req.query.page as string) || 1;
 		const limit = parseInt(req.query.limit as string) || 20;
-		const status = req.query.status as string | undefined;
+		const status = req.query.status as EventStatus | undefined;
 
 		const result = await AdminService.getPaginatedEvents(page, limit, status);
 		res.json(result);
