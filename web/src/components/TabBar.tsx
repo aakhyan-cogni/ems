@@ -1,15 +1,13 @@
-import  { useState } from "react";
+import { useState } from "react";
 import Dashboard from "./Dashboard/Dashboard";
 import { useAuthStore } from "../store/useAuthStore";
 import PersonalContent from "./Dashboard/Personal_Info_Dashboard/PersonalConent";
 import PaymentContent from "./Dashboard/Payment_Info_Dashboard/PaymentContent";
 
-
 export default function ProfileLayout() {
 	const [active, setActive] = useState("dashboard");
 	const [hover, setHover] = useState("");
 
-	
 	const user = useAuthStore((s) => s.user)!;
 	const now = new Date().getHours();
 	const greeting = now > 5 && now < 12 ? "morning" : now < 17 ? "afternoon" : "evening";
@@ -156,5 +154,3 @@ export default function ProfileLayout() {
 		</div>
 	);
 }
-
-

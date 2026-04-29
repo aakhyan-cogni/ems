@@ -51,8 +51,10 @@ ACCESS_TOKEN_SECRET=abc
 REFRESH_TOKEN_SECRET=def
 ACCESS_TOKEN_EXPIRY=900            # seconds (15 min)
 REFRESH_TOKEN_EXPIRY=604800        # seconds (7 days)
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=changeme123
+ADMIN_EMAIL=admin@ems.com
+ADMIN_PASSWORD=1234
+USER_EMAIL=user@ems.com
+USER_PASSWORD=1234
 ```
 
 Types for these are declared in [`server/src/types/env.type.ts`](server/src/types/env.type.ts) so `process.env.DATABASE_URL` is typed as `string`.

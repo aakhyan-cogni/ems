@@ -1,12 +1,14 @@
 import type { ObjectId } from "mongodb";
 
-
 export type EventStatus = "PENDING" | "APPROVED" | "REJECTED";
 
+export const currencies = ["USD", "EUR", "GBP", "JPY", "INR"] as const;
+export type Currency = (typeof currencies)[number];
 
 export interface EventDoc {
 	_id?: ObjectId;
 	title: string;
+	currency: Currency;
 	category: string;
 	description: string;
 	tags: string[];
