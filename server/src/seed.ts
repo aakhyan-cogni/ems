@@ -1,23 +1,20 @@
 import { config } from "dotenv";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { events } from "./lib/mongo.js";
+import { events } from "@/lib";
 import { ObjectId, WithId } from "mongodb";
-import { User, UserDoc } from "./models/user.model.js";
+import { UserDoc } from "@/models";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 config({ path: resolve(__dirname, "../.env") });
 
-// Dynamic import — only evaluated AFTER config() has run
-const { users } = await import("./lib/mongo.js");
+const { users } = await import("@/lib");
 const { default: bcrypt } = await import("bcryptjs");
 
 async function seed() {
 	const col = await users();
 
 	const existingAdmin = await col.findOne({ role: "ADMIN" });
-
-	console.log(existingAdmin);
 
 	if (existingAdmin) {
 		console.log("Admin already exists, skipping seed.");
