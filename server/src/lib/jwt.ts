@@ -6,6 +6,7 @@ export interface TokenPayload {
 	userId: string;
 	email: string;
 	role: Role;
+	tier: string;
 }
 
 const ACCESS_SECRET = process.env.ACCESS_TOKEN_SECRET;
@@ -68,7 +69,8 @@ export const generateTokens = (user: BasicUser & Partial<User>) => {
 	const payload: TokenPayload = {
 		userId: user.id,
 		email: user.email,
-		role: user.role || "USER" as Role,
+		role: user.role || ("USER" as Role),
+		tier: user.tier || "FREE",
 	};
 
 	return {
@@ -81,4 +83,5 @@ interface BasicUser {
 	id: string;
 	email: string;
 	role?: Role | null;
+	tier?: string | null;
 }

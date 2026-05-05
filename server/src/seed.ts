@@ -127,6 +127,7 @@ async function seed() {
 			organizerId: new ObjectId(user?._id),
 			organizerEmail: userEmail,
 			status: "PENDING",
+			visibility:"PUBLIC",
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		});

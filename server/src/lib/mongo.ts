@@ -31,5 +31,5 @@ async function collection<T extends object>(name: string): Promise<Collection<T>
 export const users = () => collection<UserDoc>(USER_COLLECTION);
 export const termsConfigs = () => collection<TermsConfigDoc>(TERMS_CONFIG_COLLECTION);
 export const events = () => collection<EventDoc>(EVENT_COLLECTION);
-
+export const registrations = () => collection<any>("Registration");
 export { client as mongoClient, getDb };
